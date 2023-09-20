@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../Arduino/spresense"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"initializer_list": "cpp"
+		}
+	}
+}

@@ -1,0 +1,3 @@
+2023-09-20
+VSCodeでAruduinoを扱うためにユーザ設定のsetting.jsonに設定を追記したので要確認。
+参照：https://my-web-note.com/vscode-extension-for-arduino/
