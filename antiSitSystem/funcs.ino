@@ -172,12 +172,12 @@ void RtcSynchronize(){
 //
 char* getCurrentTimeAsChar() {
     // 現在の時刻を取得
-    std::time_t now = std::time(nullptr);
-    std::tm* timeInfo = std::localtime(&now);
+    RtcTime now = RTC.getTime();
 
     // 時刻を文字列に変換
-    char timeStr[30]; // 十分なサイズのバッファを確保
-    std::strftime(timeStr, sizeof(timeStr), "%Y_%m_%d_%Hh%Mm%Ss", timeInfo);
+    char timeStr[40]; // 十分なサイズのバッファを確保
+    snprintf(timeStr, sizeof(timeStr), "%04d_%02d_%02d_%02dh%02dm%02ds",
+             now.year(), now.month(), now.day(), now.hour(), now.minute(), now.second());
 
     // 文字列をコピーしてchar型の配列に格納
     char* result = new char[strlen(timeStr) + 1]; // null終端文字も考慮
