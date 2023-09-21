@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "../Arduino/spresense"
+		},
+		{
+			"path": "I:/"
 		}
 	],
 	"settings": {
@@ -82,7 +85,8 @@
 			"ios": "cpp",
 			"locale": "cpp",
 			"queue": "cpp",
-			"stack": "cpp"
+			"stack": "cpp",
+			"filesystem": "cpp"
 		}
 	}
 }

@@ -22,7 +22,9 @@ void setup()
   SdSetup();
   SdUsbMscSetup();
   RtcSetup();
-  CameraSetup(); 
+  CameraSetup();
+
+  writeLogFile("Setup done");
 }
 
 //
@@ -33,18 +35,20 @@ void loop()
   RtcSynchronize();
 
   //静止画像を撮影するまで1秒待つ
-  sleep(1);  
+  sleep(3);  
 
   //このサンプルコードは開始から毎秒1枚画像を撮影できる
   if (take_picture_count < TOTAL_PICTURE_COUNT)
     {
-      Serial.println("call takeAndSavePicture()");
       takeAndSavePicture();
     }
   else if (take_picture_count == TOTAL_PICTURE_COUNT)
     {
       Serial.println("End.");
       theCamera.end();
+
+      writeLogFile("End");
+
     }
   
   take_picture_count++;

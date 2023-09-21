@@ -79,8 +79,8 @@ char* getCurrentTimeAsChar() {
     std::tm* timeInfo = std::localtime(&now);
 
     // 時刻を文字列に変換
-    char timeStr[20]; // 十分なサイズのバッファを確保
-    std::strftime(timeStr, sizeof(timeStr), "%Y_%m%d_%H-%M-%S", timeInfo);
+    char timeStr[30]; // 十分なサイズのバッファを確保
+    std::strftime(timeStr, sizeof(timeStr), "%Y_%m_%d_%Hh%Mm%Ss", timeInfo);
 
     // 文字列をコピーしてchar型の配列に格納
     char* result = new char[strlen(timeStr) + 1]; // null終端文字も考慮
@@ -146,7 +146,7 @@ void CameraSetup(){
     }
 
   //ホワイトバランスを自動調整
-  Serial.println("Set Auto white balance parameter");
+  // Serial.println("Set Auto white balance parameter");
   err = theCamera.setAutoWhiteBalanceMode(CAM_WHITE_BALANCE_DAYLIGHT);
   if (err != CAM_ERR_SUCCESS)
     {
@@ -155,7 +155,7 @@ void CameraSetup(){
  
   //静止画像に関するパラメータを設定する
   //次の場合ではQUADVGA（解像度）でJPEG（形式）となる
-  Serial.println("Set still picture format");
+  // Serial.println("Set still picture format");
   err = theCamera.setStillPictureImageFormat(
      CAM_IMGSIZE_QUADVGA_H,
      CAM_IMGSIZE_QUADVGA_V,
@@ -213,8 +213,9 @@ void takeAndSavePicture(){
   if (img.isAvailable())
     {
       //ファイル名の生成
-      char* currentTime = getCurrentTimeAsChar();
-      char* filename = appendString(currentTime, ".JPG");
+      char* filename = getCurrentTimeAsChar();
+      filename = appendString(filename, ".JPG");
+      filename = appendString("images/", filename);
 
       //新しく作るファイルと同じ名前の古いファイルを消去し、新しいファイルを作る
       theSD.remove(filename);
@@ -224,12 +225,28 @@ void takeAndSavePicture(){
       Serial.print("picture saved: ");
       Serial.println(filename);
 
-      //メモリの開放
-      delete[] currentTime;
-      delete[] filename;
+      writeLogFile(filename);
     }
   else
     {
       Serial.println("Failed to take picture");
     }
+}
+
+//
+// シリアルポートへの出力とログファイルへの書き込み(改行あり)
+//
+void writeLogFile(char* message){
+
+  char* now = getCurrentTimeAsChar();
+
+  File logFile = theSD.open("log.txt", FILE_WRITE);
+  logFile.print(now);
+  logFile.print(" : ");
+  logFile.println(message);
+  logFile.flush();
+  logFile.close();
+
+  delete[] now;
+
 }
