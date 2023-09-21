@@ -27,11 +27,8 @@ void setup()
 
 void loop()
 {
-  //時刻の同期
-  RtcSynchronize();
-
   //静止画像を撮影するまでX秒待つ
-  sleep(60);  //60秒
+  sleep(60);
 
   //静止画像の撮影と保存、画像の保存先パスを返す
   char* imagePath = takeAndSavePicture();
@@ -40,8 +37,7 @@ void loop()
   bool personDetected = detectPersonInImage(imagePath);
 
   //カウンタの更新
-  sitCountDiff = sitCountUpdater(personDetected);
-  sitCount = sitCount + sitCountDiff;
+  sitCountUpdater(&sitCount, personDetected);
 
   //カウンタに応じたモード判定
   mode = determineMode(sitCount);

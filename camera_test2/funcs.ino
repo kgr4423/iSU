@@ -155,7 +155,7 @@ void RtcSetup(){
 }
 
 //
-// PCの時刻との同期
+// PCからのシリアル入力による時刻同期
 //
 void RtcSynchronize(){
   if (Serial.available()) {

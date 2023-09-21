@@ -26,8 +26,6 @@ void setup()
 
 void loop()
 {
-  RtcSynchronize();
-
   //静止画像を撮影するまで1秒待つ
   sleep(3);  
 
