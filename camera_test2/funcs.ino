@@ -201,3 +201,35 @@ void RtcSynchronize(){
     }
   }
 }
+
+//
+// 静止画像の撮影と保存
+//
+void takeAndSavePicture(){
+  //カメラデバイスからの画像データの受信待機
+  CamImage img = theCamera.takePicture();
+
+  //imgインスタンスが利用可能か確認
+  if (img.isAvailable())
+    {
+      //ファイル名の生成
+      char* currentTime = getCurrentTimeAsChar();
+      char* filename = appendString(currentTime, ".JPG");
+
+      //新しく作るファイルと同じ名前の古いファイルを消去し、新しいファイルを作る
+      theSD.remove(filename);
+      File myFile = theSD.open(filename, FILE_WRITE);
+      myFile.write(img.getImgBuff(), img.getImgSize());
+      myFile.close();
+      Serial.print("picture saved: ");
+      Serial.println(filename);
+
+      //メモリの開放
+      delete[] currentTime;
+      delete[] filename;
+    }
+  else
+    {
+      Serial.println("Failed to take picture");
+    }
+}

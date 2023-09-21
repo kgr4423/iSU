@@ -38,35 +38,8 @@ void loop()
   //このサンプルコードは開始から毎秒1枚画像を撮影できる
   if (take_picture_count < TOTAL_PICTURE_COUNT)
     {
-
-      //静止画像を撮影
-      //ビデオストリームとは異なり、カメラデバイスからの画像データの受信を待ちます
-      Serial.println("call takePicture()");
-      CamImage img = theCamera.takePicture();
-
-      //imgインスタンスが利用可能か確認
-      //もしエラーが発生したらimgは利用できない
-      if (img.isAvailable())
-        {
-          //ファイル名の生成
-          char* currentTime = getCurrentTimeAsChar();
-          char* filename = appendString(currentTime, ".JPG");
-
-          //新しく作るファイルと同じ名前の古いファイルを消去し、新しいファイルを作る
-          theSD.remove(filename);
-          File myFile = theSD.open(filename, FILE_WRITE);
-          myFile.write(img.getImgBuff(), img.getImgSize());
-          myFile.close();
-          Serial.print("picture saved: ");
-          Serial.println(filename);
-
-          delete[] currentTime;
-          delete[] filename;
-        }
-      else
-        {
-          Serial.println("Failed to take picture");
-        }
+      Serial.println("call takeAndSavePicture()");
+      takeAndSavePicture();
     }
   else if (take_picture_count == TOTAL_PICTURE_COUNT)
     {
