@@ -152,15 +152,6 @@ void setup()
       printError(err);
     }
 
-  //ビデオストリームを開始
-  //カメラデバイスからビデオストリームデータを受信した場合、カメラライブラリからCamCBを呼び出す
-  // Serial.println("Start streaming");
-  // err = theCamera.startStreaming(true, CamCB);
-  // if (err != CAM_ERR_SUCCESS)
-  //   {
-  //     printError(err);
-  //   }
-
   //ホワイトバランスを自動調整
   Serial.println("Set Auto white balance parameter");
   err = theCamera.setAutoWhiteBalanceMode(CAM_WHITE_BALANCE_DAYLIGHT);
@@ -234,17 +225,11 @@ void loop()
       if (img.isAvailable())
         {
           //ファイル名の生成
-          // char filename[16] = {0};
-          // sprintf(filename, "PICTex%03d.JPG", take_picture_count);
-          // Serial.print("Save taken picture as ");
-          // Serial.print(filename);
-          // Serial.println("");
           char* currentTime = getCurrentTimeAsChar();
           char* filename = appendString(currentTime, ".JPG");
           Serial.print(filename);
 
           //新しく作るファイルと同じ名前の古いファイルを消去し、新しいファイルを作る
-          // char filename[16] = "images/c.JPG";
           theSD.remove(filename);
           File myFile = theSD.open(filename, FILE_WRITE);
           myFile.write(img.getImgBuff(), img.getImgSize());

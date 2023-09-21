@@ -71,7 +71,42 @@ void CamCB(CamImage img)
 }
 
 //
-// SerialPortへの接続待機
+// 現在の時刻を取得し、char型の配列に格納する関数
+//
+char* getCurrentTimeAsChar() {
+    // 現在の時刻を取得
+    std::time_t now = std::time(nullptr);
+    std::tm* timeInfo = std::localtime(&now);
+
+    // 時刻を文字列に変換
+    char timeStr[20]; // 十分なサイズのバッファを確保
+    std::strftime(timeStr, sizeof(timeStr), "%Y_%m%d_%H-%M-%S", timeInfo);
+
+    // 文字列をコピーしてchar型の配列に格納
+    char* result = new char[strlen(timeStr) + 1]; // null終端文字も考慮
+    std::strcpy(result, timeStr);
+
+    return result;
+}
+
+//
+// char型の配列に文字列を連結する関数
+//
+char* appendString(char* str, const char* suffix) {
+    // 新しいサイズを計算
+    size_t len1 = strlen(str);
+    size_t len2 = strlen(suffix);
+    char* result = new char[len1 + len2 + 1]; // null終端文字も考慮
+
+    // 文字列を連結
+    strcpy(result, str);
+    strcat(result, suffix);
+
+    return result;
+}
+
+//
+// シリアルポートの初期化
 //
 void SerialPortSetup(){
   //シリアル通信を開始し、ポートが開くのを待つ
@@ -84,11 +119,9 @@ void SerialPortSetup(){
 }
 
 //
-// SDの初期設定
+// SDの初期化
 //
 void SdSetup(){
-  SDClass  theSD;
-  //SDの初期化
   while (!theSD.begin()) 
     {
       //SDカードが挿入されるまで待つ
@@ -97,23 +130,15 @@ void SdSetup(){
 }
 
 //
-// Cameraの初期設定
+// Cameraの初期化
 //
 void CameraSetup(){
   CamErr err;
+
   //パラメータなしのbegin()は、次のことを意味する
   //バッファの数 = 1、30FPS、QVGA、YUV 4:2:2 フォーマット
   Serial.println("Prepare camera");
   err = theCamera.begin();
-  if (err != CAM_ERR_SUCCESS)
-    {
-      printError(err);
-    }
-
-  //ビデオストリームを開始
-  //カメラデバイスからビデオストリームデータを受信した場合、カメラライブラリからCamCBを呼び出す
-  Serial.println("Start streaming");
-  err = theCamera.startStreaming(true, CamCB);
   if (err != CAM_ERR_SUCCESS)
     {
       printError(err);
@@ -138,4 +163,24 @@ void CameraSetup(){
     {
       printError(err);
     }
+}
+
+//
+// USB MSCの開始
+//
+void SdUsbMscSetup(){
+  if (theSD.beginUsbMsc()) {
+    Serial.println("USB MSC Failure!");
+  } else {
+    Serial.println("USB MSC Prepared");
+  }
+}
+
+//
+// RTCの初期化
+//
+void RtcSetup(){
+  RTC.begin();
+  RtcTime compiledDateTime(__DATE__, __TIME__);
+  RTC.setTime(compiledDateTime);
 }

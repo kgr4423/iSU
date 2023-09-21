@@ -1,24 +1,28 @@
 #include <SDHCI.h>
 #include <stdio.h>
-
+#include <iostream>
+#include <ctime>
+#include <cstring>
 #include <Camera.h>
+#include <RTC.h>
 
+#define TIME_HEADER 'T' // Header tag for serial time sync message
 #define BAUDRATE                (115200)
-#define TOTAL_PICTURE_COUNT     (10)
+#define TOTAL_PICTURE_COUNT     (5)
 
-
-
+SDClass  theSD;
+int take_picture_count = 0;
 
 //
-// @brief カメラの初期化
+// @brief 初期化
 //
 void setup()
-{
-  int take_picture_count = 0;
+{  
   SerialPortSetup();
   SdSetup();
-  CameraSetup();
-  
+  SdUsbMscSetup();
+  RtcSetup();
+  CameraSetup(); 
 }
 
 //
@@ -26,6 +30,15 @@ void setup()
 //
 void loop()
 {
+  // Synchronize with the PC time
+  if (Serial.available()) {
+    if(Serial.find(TIME_HEADER)) {
+      uint32_t pctime = Serial.parseInt();
+      RtcTime rtc(pctime);
+      RTC.setTime(rtc);
+    }
+  }
+
   //静止画像を撮影するまで1秒待つ
   sleep(1);  
 
@@ -43,18 +56,18 @@ void loop()
       if (img.isAvailable())
         {
           //ファイル名の生成
-          char filename[16] = {0};
-          sprintf(filename, "PICT%03d.JPG", take_picture_count);
-    
-          Serial.print("Save taken picture as ");
+          char* currentTime = getCurrentTimeAsChar();
+          char* filename = appendString(currentTime, ".JPG");
           Serial.print(filename);
-          Serial.println("");
 
           //新しく作るファイルと同じ名前の古いファイルを消去し、新しいファイルを作る
           theSD.remove(filename);
           File myFile = theSD.open(filename, FILE_WRITE);
           myFile.write(img.getImgBuff(), img.getImgSize());
           myFile.close();
+
+          delete[] currentTime;
+          delete[] filename;
         }
       else
         {
@@ -73,6 +86,11 @@ void loop()
       Serial.println("End.");
       theCamera.end();
     }
+  else
+    {
+      exit(0);
+    }
 
+  
   take_picture_count++;
 }
