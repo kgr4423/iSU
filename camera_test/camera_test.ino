@@ -1,10 +1,14 @@
 #include <SDHCI.h>
 #include <stdio.h>
-
+#include <iostream>
+#include <ctime>
+#include <cstring>
 #include <Camera.h>
+#include <RTC.h>
 
+#define TIME_HEADER 'T' // Header tag for serial time sync message
 #define BAUDRATE                (115200)
-#define TOTAL_PICTURE_COUNT     (1)
+#define TOTAL_PICTURE_COUNT     (5)
 
 SDClass  theSD;
 int take_picture_count = 0;
@@ -82,6 +86,41 @@ void CamCB(CamImage img)
 }
 
 //
+// 現在の時刻を取得し、char型の配列に格納する関数
+//
+char* getCurrentTimeAsChar() {
+    // 現在の時刻を取得
+    std::time_t now = std::time(nullptr);
+    std::tm* timeInfo = std::localtime(&now);
+
+    // 時刻を文字列に変換
+    char timeStr[20]; // 十分なサイズのバッファを確保
+    std::strftime(timeStr, sizeof(timeStr), "%Y_%m%d_%H-%M-%S", timeInfo);
+
+    // 文字列をコピーしてchar型の配列に格納
+    char* result = new char[strlen(timeStr) + 1]; // null終端文字も考慮
+    std::strcpy(result, timeStr);
+
+    return result;
+}
+
+//
+// char型の配列に文字列を連結する関数
+//
+char* appendString(char* str, const char* suffix) {
+    // 新しいサイズを計算
+    size_t len1 = strlen(str);
+    size_t len2 = strlen(suffix);
+    char* result = new char[len1 + len2 + 1]; // null終端文字も考慮
+
+    // 文字列を連結
+    strcpy(result, str);
+    strcat(result, suffix);
+
+    return result;
+}
+
+//
 // @brief カメラの初期化
 //
 void setup()
@@ -155,6 +194,13 @@ void setup()
     Serial.println("*** USB MSC Prepared! ***");
     Serial.println("Insert SD and Connect Extension Board USB to PC.");
   }
+
+  // Initialize RTC at first
+  RTC.begin();
+
+  // Set the temporary RTC time
+  RtcTime compiledDateTime(__DATE__, __TIME__);
+  RTC.setTime(compiledDateTime);
 }
 
 //
@@ -162,6 +208,15 @@ void setup()
 //
 void loop()
 {
+  // Synchronize with the PC time
+  if (Serial.available()) {
+    if(Serial.find(TIME_HEADER)) {
+      uint32_t pctime = Serial.parseInt();
+      RtcTime rtc(pctime);
+      RTC.setTime(rtc);
+    }
+  }
+
   //静止画像を撮影するまで1秒待つ
   sleep(1);  
 
@@ -181,17 +236,22 @@ void loop()
           //ファイル名の生成
           // char filename[16] = {0};
           // sprintf(filename, "PICTex%03d.JPG", take_picture_count);
-    
           // Serial.print("Save taken picture as ");
           // Serial.print(filename);
           // Serial.println("");
+          char* currentTime = getCurrentTimeAsChar();
+          char* filename = appendString(currentTime, ".JPG");
+          Serial.print(filename);
 
           //新しく作るファイルと同じ名前の古いファイルを消去し、新しいファイルを作る
-          char filename[16] = "images/c.JPG";
+          // char filename[16] = "images/c.JPG";
           theSD.remove(filename);
           File myFile = theSD.open(filename, FILE_WRITE);
           myFile.write(img.getImgBuff(), img.getImgSize());
           myFile.close();
+
+          delete[] currentTime;
+          delete[] filename;
         }
       else
         {
