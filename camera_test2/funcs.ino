@@ -71,67 +71,6 @@ void CamCB(CamImage img)
 }
 
 //
-// 現在の時刻を取得し、char型の配列に格納する関数
-//
-char* getCurrentTimeAsChar() {
-    // 現在の時刻を取得
-    std::time_t now = std::time(nullptr);
-    std::tm* timeInfo = std::localtime(&now);
-
-    // 時刻を文字列に変換
-    char timeStr[30]; // 十分なサイズのバッファを確保
-    std::strftime(timeStr, sizeof(timeStr), "%Y_%m_%d_%Hh%Mm%Ss", timeInfo);
-
-    // 文字列をコピーしてchar型の配列に格納
-    char* result = new char[strlen(timeStr) + 1]; // null終端文字も考慮
-    std::strcpy(result, timeStr);
-
-    return result;
-}
-
-//
-// char型の配列に文字列を連結する関数
-//
-char* appendString(char* str, const char* suffix) {
-    // 新しいサイズを計算
-    size_t len1 = strlen(str);
-    size_t len2 = strlen(suffix);
-    char* result = new char[len1 + len2 + 1]; // null終端文字も考慮
-
-    // 文字列を連結
-    strcpy(result, str);
-    strcat(result, suffix);
-
-    return result;
-}
-
-//
-// シリアルポートの初期化
-//
-void SerialPortSetup(){
-  //シリアル通信を開始し、ポートが開くのを待つ
-  Serial.begin(BAUDRATE);
-  while (!Serial)
-    {
-      //シリアルポートが接続するのを待つ、Native USB Portのみ可
-      ;
-    }
-  Serial.println("SerialPort Prepared");
-}
-
-//
-// SDの初期化
-//
-void SdSetup(){
-  while (!theSD.begin()) 
-    {
-      //SDカードが挿入されるまで待つ
-      Serial.println("Insert SD card!");
-    }
-  Serial.println("SD Prepared");
-}
-
-//
 // Cameraの初期化
 //
 void CameraSetup(){
@@ -169,6 +108,32 @@ void CameraSetup(){
 }
 
 //
+// シリアルポートの初期化
+//
+void SerialPortSetup(){
+  //シリアル通信を開始し、ポートが開くのを待つ
+  Serial.begin(BAUDRATE);
+  while (!Serial)
+    {
+      //シリアルポートが接続するのを待つ、Native USB Portのみ可
+      ;
+    }
+  Serial.println("SerialPort Prepared");
+}
+
+//
+// SDの初期化
+//
+void SdSetup(){
+  while (!theSD.begin()) 
+    {
+      //SDカードが挿入されるまで待つ
+      Serial.println("Insert SD card!");
+    }
+  Serial.println("SD Prepared");
+}
+
+//
 // USB MSCの開始
 //
 void SdUsbMscSetup(){
@@ -203,6 +168,41 @@ void RtcSynchronize(){
 }
 
 //
+// 現在の時刻を取得し、char型の配列に格納する関数
+//
+char* getCurrentTimeAsChar() {
+    // 現在の時刻を取得
+    std::time_t now = std::time(nullptr);
+    std::tm* timeInfo = std::localtime(&now);
+
+    // 時刻を文字列に変換
+    char timeStr[30]; // 十分なサイズのバッファを確保
+    std::strftime(timeStr, sizeof(timeStr), "%Y_%m_%d_%Hh%Mm%Ss", timeInfo);
+
+    // 文字列をコピーしてchar型の配列に格納
+    char* result = new char[strlen(timeStr) + 1]; // null終端文字も考慮
+    std::strcpy(result, timeStr);
+
+    return result;
+}
+
+//
+// char型の配列に文字列を連結する関数
+//
+char* appendString(char* str, const char* suffix) {
+    // 新しいサイズを計算
+    size_t len1 = strlen(str);
+    size_t len2 = strlen(suffix);
+    char* result = new char[len1 + len2 + 1]; // null終端文字も考慮
+
+    // 文字列を連結
+    strcpy(result, str);
+    strcat(result, suffix);
+
+    return result;
+}
+
+//
 // 静止画像の撮影と保存
 //
 void takeAndSavePicture(){
@@ -234,7 +234,7 @@ void takeAndSavePicture(){
 }
 
 //
-// シリアルポートへの出力とログファイルへの書き込み(改行あり)
+// シリアルポートへの出力とログファイルへの書き込み
 //
 void writeLogFile(char* message){
 

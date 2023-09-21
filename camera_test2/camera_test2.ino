@@ -13,9 +13,6 @@
 SDClass  theSD;
 int take_picture_count = 0;
 
-//
-// @brief 初期化
-//
 void setup()
 {  
   SerialPortSetup();
@@ -27,9 +24,6 @@ void setup()
   writeLogFile("Setup done");
 }
 
-//
-// @brief JPEG形式の写真を毎秒撮影する
-//
 void loop()
 {
   RtcSynchronize();
