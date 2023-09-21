@@ -1,6 +1,6 @@
 {
     "configuration": "Core=Main,Memory=768,Debug=Disabled,UploadSpeed=115200",
     "board": "SPRESENSE:spresense:spresense",
-    "sketch": "camera_test\\camera_test.ino",
+    "sketch": "camera_test2\\camera_test2.ino",
     "port": "COM3"
 }

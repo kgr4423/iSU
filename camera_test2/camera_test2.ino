@@ -30,14 +30,7 @@ void setup()
 //
 void loop()
 {
-  // Synchronize with the PC time
-  if (Serial.available()) {
-    if(Serial.find(TIME_HEADER)) {
-      uint32_t pctime = Serial.parseInt();
-      RtcTime rtc(pctime);
-      RTC.setTime(rtc);
-    }
-  }
+  RtcSynchronize();
 
   //静止画像を撮影するまで1秒待つ
   sleep(1);  
@@ -58,26 +51,20 @@ void loop()
           //ファイル名の生成
           char* currentTime = getCurrentTimeAsChar();
           char* filename = appendString(currentTime, ".JPG");
-          Serial.print(filename);
 
           //新しく作るファイルと同じ名前の古いファイルを消去し、新しいファイルを作る
           theSD.remove(filename);
           File myFile = theSD.open(filename, FILE_WRITE);
           myFile.write(img.getImgBuff(), img.getImgSize());
           myFile.close();
+          Serial.print("picture saved: ");
+          Serial.println(filename);
 
           delete[] currentTime;
           delete[] filename;
         }
       else
         {
-          //写真のサイズが割り当てられたメモリーサイズを超える場合がある
-          //その場合より大きなメモリーを確保し、画像サイズを小さくする必要がある
-          //より大きなメモリーを確保する方法
-          //・setStillPictureImageFormat() で指定された jpgbufsize_divisor を減少させる
-          //・Arduino IDEのツールメニューからメモリサイズを大きくする
-          //画像のサイズを小さくする方法
-          //・setJPEGQuality()でJPEGの画質を落とす
           Serial.println("Failed to take picture");
         }
     }
@@ -86,11 +73,6 @@ void loop()
       Serial.println("End.");
       theCamera.end();
     }
-  else
-    {
-      exit(0);
-    }
-
   
   take_picture_count++;
 }

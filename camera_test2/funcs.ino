@@ -116,6 +116,7 @@ void SerialPortSetup(){
       //シリアルポートが接続するのを待つ、Native USB Portのみ可
       ;
     }
+  Serial.println("SerialPort Prepared");
 }
 
 //
@@ -125,8 +126,9 @@ void SdSetup(){
   while (!theSD.begin()) 
     {
       //SDカードが挿入されるまで待つ
-      Serial.println("Insert SD card.");
+      Serial.println("Insert SD card!");
     }
+  Serial.println("SD Prepared");
 }
 
 //
@@ -137,7 +139,6 @@ void CameraSetup(){
 
   //パラメータなしのbegin()は、次のことを意味する
   //バッファの数 = 1、30FPS、QVGA、YUV 4:2:2 フォーマット
-  Serial.println("Prepare camera");
   err = theCamera.begin();
   if (err != CAM_ERR_SUCCESS)
     {
@@ -163,6 +164,8 @@ void CameraSetup(){
     {
       printError(err);
     }
+
+  Serial.println("Camera Prepared");
 }
 
 //
@@ -183,4 +186,18 @@ void RtcSetup(){
   RTC.begin();
   RtcTime compiledDateTime(__DATE__, __TIME__);
   RTC.setTime(compiledDateTime);
+  Serial.println("RTC Prepared");
+}
+
+//
+// PCの時刻との同期
+//
+void RtcSynchronize(){
+  if (Serial.available()) {
+    if(Serial.find(TIME_HEADER)) {
+      uint32_t pctime = Serial.parseInt();
+      RtcTime rtc(pctime);
+      RTC.setTime(rtc);
+    }
+  }
 }
