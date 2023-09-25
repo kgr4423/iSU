@@ -44,7 +44,7 @@
                 "CONFIG_HAVE_DOUBLE",
                 "__NuttX__",
                 "F_CPU=156000000L",
-                "ARDUINO=10816",
+                "ARDUINO=10607",
                 "ARDUINO_spresense_ast",
                 "ARDUINO_ARCH_SPRESENSE",
                 "ARDUINO_BOARD=\"spresense_ast\"",
