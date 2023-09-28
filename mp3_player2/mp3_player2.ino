@@ -4,7 +4,7 @@
 SDClass theSD;
 AudioClass *theAudio;
 
-File myFile;
+File audioFile;
 
 bool ErrEnd = false;
 
@@ -15,31 +15,24 @@ void setup()
 
   err_t err = AudioSetup();
 
-  /* Verify player initialize */
-  if (err != AUDIOLIB_ECODE_OK)
-    {
-      printf("Player0 initialize error\n");
-      exit(1);
-    }
-
   /* Open file placed on SD card */
-  myFile = theSD.open("mp3/sample.mp3");
+  audioFile = theSD.open("mp3/sample.mp3");
 
   /* Verify file open */
-  if (!myFile)
+  if (!audioFile)
     {
       printf("File open error\n");
       exit(1);
     }
-  printf("Open! 0x%08lx\n", (uint32_t)myFile);
+  printf("Open! 0x%08lx\n", (uint32_t)audioFile);
 
   /* Send first frames to be decoded */
-  err = theAudio->writeFrames(AudioClass::Player0, myFile);
+  err = theAudio->writeFrames(AudioClass::Player0, audioFile);
 
   if ((err != AUDIOLIB_ECODE_OK) && (err != AUDIOLIB_ECODE_FILEEND))
     {
       printf("File Read Error! =%d\n",err);
-      myFile.close();
+      audioFile.close();
       exit(1);
     }
 
@@ -55,7 +48,7 @@ void loop()
   puts("loop!!");
 
   /* Send new frames to decode in a loop until file ends */
-  int err = theAudio->writeFrames(AudioClass::Player0, myFile);
+  int err = theAudio->writeFrames(AudioClass::Player0, audioFile);
 
   /*  Tell when player file ends */
   if (err == AUDIOLIB_ECODE_FILEEND)
@@ -94,7 +87,7 @@ void loop()
 
 stop_player:
   theAudio->stopPlayer(AudioClass::Player0);
-  myFile.close();
+  audioFile.close();
   theAudio->setReadyMode();
   theAudio->end();
   exit(1);
@@ -138,6 +131,13 @@ err_t AudioSetup(){
    * Search for MP3 decoder in "/mnt/sd0/BIN" directory
    */
   err_t err = theAudio->initPlayer(AudioClass::Player0, AS_CODECTYPE_MP3, "/mnt/sd0/BIN", AS_SAMPLINGRATE_AUTO, AS_CHANNEL_STEREO);
+
+  /* Verify player initialize */
+  if (err != AUDIOLIB_ECODE_OK)
+    {
+      printf("Player0 initialize error\n");
+      exit(1);
+    }
 
   return err;
 }
