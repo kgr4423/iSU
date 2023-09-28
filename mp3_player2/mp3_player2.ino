@@ -47,7 +47,7 @@ void loop()
 {
   puts("loop!!");
 
-  /* Send new frames to decode in a loop until file ends */
+  /* ファイル終了までループで新しいフレームをデコードに送る */
   int err = theAudio->writeFrames(AudioClass::Player0, audioFile);
 
   /*  Tell when player file ends */
@@ -69,20 +69,10 @@ void loop()
       goto stop_player;
     }
 
-  /* This sleep is adjusted by the time to read the audio stream file.
-   * Please adjust in according with the processing contents
-   * being processed at the same time by Application.
-   *
-   * The usleep() function suspends execution of the calling thread for usec
-   * microseconds. But the timer resolution depends on the OS system tick time
-   * which is 10 milliseconds (10,000 microseconds) by default. Therefore,
-   * it will sleep for a longer time than the time requested here.
-   */
-
+  //このスリープは、オーディオストリームファイルの読み込み時間によって調整されます。
+  //アプリケーションで同時に処理される処理内容に応じて調整してください。
   usleep(40000);
 
-
-  /* Don't go further and continue play */
   return;
 
 stop_player:
@@ -113,22 +103,16 @@ err_t AudioSetup(){
 
   puts("initialization Audio Library");
 
-  /* Set clock mode to normal */
+  /* クロックモードをノーマルに設定する */
   theAudio->setRenderingClockMode(AS_CLKMODE_NORMAL);
 
-  /* Set output device to speaker with first argument.
-   * If you want to change the output device to I2S,
-   * specify "AS_SETPLAYER_OUTPUTDEVICE_I2SOUTPUT" as an argument.
-   * Set speaker driver mode to LineOut with second argument.
-   * If you want to change the speaker driver mode to other,
-   * specify "AS_SP_DRV_MODE_1DRIVER" or "AS_SP_DRV_MODE_2DRIVER" or "AS_SP_DRV_MODE_4DRIVER"
-   * as an argument.
-   */
+  //第一引数で出力デバイスをスピーカーに設定している
+  //第2引数でスピーカードライバモードを LineOut に設定している
   theAudio->setPlayerMode(AS_SETPLAYER_OUTPUTDEVICE_SPHP, AS_SP_DRV_MODE_LINEOUT);
 
   /*
-   * Set main player to decode stereo mp3. Stream sample rate is set to "auto detect"
-   * Search for MP3 decoder in "/mnt/sd0/BIN" directory
+   * メインプレーヤーがステレオMP3をデコードするように設定する。ストリームのサンプルレートは "自動検出 "に設定されています。
+   * mnt/sd0/BIN "ディレクトリでMP3デコーダーを検索する。
    */
   err_t err = theAudio->initPlayer(AudioClass::Player0, AS_CODECTYPE_MP3, "/mnt/sd0/BIN", AS_SAMPLINGRATE_AUTO, AS_CHANNEL_STEREO);
 
@@ -145,9 +129,8 @@ err_t AudioSetup(){
 /**
  * @brief Audio attention callback
  *
- * When audio internal error occurc, this function will be called back.
+ * オーディオ内部エラーが発生すると、この関数がコールバックされる。
  */
-
 static void audio_attention_cb(const ErrorAttentionParam *atprm)
 {
   puts("Attention!");
