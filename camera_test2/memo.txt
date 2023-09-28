@@ -13,3 +13,6 @@ SD内の一部ファイルが消せない問題発生
 beginUsbMscとSD読み書きを同時に行っていたのが原因っぽかった
 beginUsbMscは撮影終了後に行うことにしたら消せないファイルが増加することはなくなった
 もともとあった消せないファイルはSD.removeでひとつずつ消した
+
+”SD カード内のファイルに対して、スケッチからのファイル操作と、USB MSC による PC からのファイル操作は、排他的に動作させる必要があります。”
+参考：https://developer.sony.com/spresense/development-guides/arduino_developer_guide_ja.html#_sdhci_library
