@@ -1,0 +1,5 @@
+2023-09-28
+mp3ファイルを再生するプログラム
+mp3ファイルはSDカードに入れて、パスで指定する
+サンプルプログラムのdsp_installer/mp3_dec_installerでBIN/MP3DECをSDカードにインストールする必要あり
+参考；https://deviceplus.jp/mc-general/spresense-02/
