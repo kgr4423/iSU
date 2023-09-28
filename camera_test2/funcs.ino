@@ -136,7 +136,7 @@ void SdSetup(){
 //
 // USB MSCの開始
 //
-void SdUsbMscSetup(){
+void SdUsbMscStart(){
   if (theSD.beginUsbMsc()) {
     Serial.println("USB MSC Failure!");
   } else {
@@ -221,6 +221,7 @@ void takeAndSavePicture(){
       theSD.remove(filename);
       File myFile = theSD.open(filename, FILE_WRITE);
       myFile.write(img.getImgBuff(), img.getImgSize());
+      myFile.flush();
       myFile.close();
       Serial.print("picture saved: ");
       Serial.println(filename);

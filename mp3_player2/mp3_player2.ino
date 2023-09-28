@@ -21,8 +21,34 @@ void SdSetup(){
   Serial.println("SD Prepared");
 }
 
-void AudioSetup(){
-  
+err_t AudioSetup(){
+  // start audio system
+  theAudio = AudioClass::getInstance();
+
+  theAudio->begin(audio_attention_cb);
+
+  puts("initialization Audio Library");
+
+  /* Set clock mode to normal */
+  theAudio->setRenderingClockMode(AS_CLKMODE_NORMAL);
+
+  /* Set output device to speaker with first argument.
+   * If you want to change the output device to I2S,
+   * specify "AS_SETPLAYER_OUTPUTDEVICE_I2SOUTPUT" as an argument.
+   * Set speaker driver mode to LineOut with second argument.
+   * If you want to change the speaker driver mode to other,
+   * specify "AS_SP_DRV_MODE_1DRIVER" or "AS_SP_DRV_MODE_2DRIVER" or "AS_SP_DRV_MODE_4DRIVER"
+   * as an argument.
+   */
+  theAudio->setPlayerMode(AS_SETPLAYER_OUTPUTDEVICE_SPHP, AS_SP_DRV_MODE_LINEOUT);
+
+  /*
+   * Set main player to decode stereo mp3. Stream sample rate is set to "auto detect"
+   * Search for MP3 decoder in "/mnt/sd0/BIN" directory
+   */
+  err_t err = theAudio->initPlayer(AudioClass::Player0, AS_CODECTYPE_MP3, "/mnt/sd0/BIN", AS_SAMPLINGRATE_AUTO, AS_CHANNEL_STEREO);
+
+  return err;
 }
 
 /**
@@ -55,31 +81,7 @@ void setup()
 {
   SdSetup();
 
-  // start audio system
-  theAudio = AudioClass::getInstance();
-
-  theAudio->begin(audio_attention_cb);
-
-  puts("initialization Audio Library");
-
-  /* Set clock mode to normal */
-  theAudio->setRenderingClockMode(AS_CLKMODE_NORMAL);
-
-  /* Set output device to speaker with first argument.
-   * If you want to change the output device to I2S,
-   * specify "AS_SETPLAYER_OUTPUTDEVICE_I2SOUTPUT" as an argument.
-   * Set speaker driver mode to LineOut with second argument.
-   * If you want to change the speaker driver mode to other,
-   * specify "AS_SP_DRV_MODE_1DRIVER" or "AS_SP_DRV_MODE_2DRIVER" or "AS_SP_DRV_MODE_4DRIVER"
-   * as an argument.
-   */
-  theAudio->setPlayerMode(AS_SETPLAYER_OUTPUTDEVICE_SPHP, AS_SP_DRV_MODE_LINEOUT);
-
-  /*
-   * Set main player to decode stereo mp3. Stream sample rate is set to "auto detect"
-   * Search for MP3 decoder in "/mnt/sd0/BIN" directory
-   */
-  err_t err = theAudio->initPlayer(AudioClass::Player0, AS_CODECTYPE_MP3, "/mnt/sd0/BIN", AS_SAMPLINGRATE_AUTO, AS_CHANNEL_STEREO);
+  err_t err = AudioSetup();
 
   /* Verify player initialize */
   if (err != AUDIOLIB_ECODE_OK)
@@ -89,7 +91,7 @@ void setup()
     }
 
   /* Open file placed on SD card */
-  myFile = theSD.open("what.mp3");
+  myFile = theSD.open("mp3/sample.mp3");
 
   /* Verify file open */
   if (!myFile)
@@ -112,7 +114,7 @@ void setup()
   puts("Play!");
 
   /* Main volume set to -16.0 dB */
-  theAudio->setVolume(-160);
+  theAudio->setVolume(-600);
   theAudio->startPlayer(AudioClass::Player0);
 }
 

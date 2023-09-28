@@ -96,7 +96,7 @@ void setup()
     }
 
   /* Open file placed on SD card */
-  myFile = theSD.open("what.mp3");
+  myFile = theSD.open("mp3/sample.mp3");
 
   /* Verify file open */
   if (!myFile)

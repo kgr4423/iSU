@@ -17,7 +17,6 @@ void setup()
 {  
   SerialPortSetup();
   SdSetup();
-  SdUsbMscSetup();
   RtcSetup();
   CameraSetup();
 
@@ -41,6 +40,7 @@ void loop()
 
       writeLogFile("End");
 
+      SdUsbMscStart();
     }
   
   take_picture_count++;
