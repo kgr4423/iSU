@@ -12,7 +12,7 @@ bool ErrEnd = false;
 void setup()
 {
   SdSetup();
-  
+
   AudioSetup();
   openAudioFileInSd("mp3/sample.mp3");
   sendFirstFramesOfAudioFile();
@@ -23,41 +23,7 @@ void setup()
 void loop()
 {
   puts("loop!!");
-
-  /* ファイル終了までループで新しいフレームをデコードに送る */
-  int err = theAudio->writeFrames(AudioClass::Player0, audioFile);
-
-  /*  Tell when player file ends */
-  if (err == AUDIOLIB_ECODE_FILEEND)
-    {
-      printf("Main player File End!\n");
-    }
-
-  /* Show error code from player and stop */
-  if (err)
-    {
-      printf("Main player error code: %d\n", err);
-      goto stop_player;
-    }
-
-  if (ErrEnd)
-    {
-      printf("Error End\n");
-      goto stop_player;
-    }
-
-  //このスリープは、オーディオストリームファイルの読み込み時間によって調整されます。
-  //アプリケーションで同時に処理される処理内容に応じて調整してください。
-  usleep(40000);
-
-  return;
-
-stop_player:
-  theAudio->stopPlayer(AudioClass::Player0);
-  audioFile.close();
-  theAudio->setReadyMode();
-  theAudio->end();
-  exit(1);
+  sendNextFramesOfAudioFile();
 }
 
 //
@@ -126,6 +92,43 @@ void sendFirstFramesOfAudioFile()
       audioFile.close();
       exit(1);
     }
+}
+
+void sendNextFramesOfAudioFile(){
+  /* ファイル終了までループで新しいフレームをデコードに送る */
+  int err = theAudio->writeFrames(AudioClass::Player0, audioFile);
+
+  /*  Tell when player file ends */
+  if (err == AUDIOLIB_ECODE_FILEEND)
+    {
+      printf("Main player File End!\n");
+    }
+
+  /* Show error code from player and stop */
+  if (err)
+    {
+      printf("Main player error code: %d\n", err);
+      goto stop_player;
+    }
+
+  if (ErrEnd)
+    {
+      printf("Error End\n");
+      goto stop_player;
+    }
+
+  //このスリープは、オーディオストリームファイルの読み込み時間によって調整されます。
+  //アプリケーションで同時に処理される処理内容に応じて調整してください。
+  usleep(40000);
+
+  return;
+
+stop_player:
+  theAudio->stopPlayer(AudioClass::Player0);
+  audioFile.close();
+  theAudio->setReadyMode();
+  theAudio->end();
+  exit(1);
 }
 
 /**
