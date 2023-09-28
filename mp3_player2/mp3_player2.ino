@@ -22,8 +22,8 @@ void setup()
 
 void loop()
 {
-  puts("loop!!");
   sendNextFramesOfAudioFile();
+  exit(0);
 }
 
 //
@@ -95,6 +95,7 @@ void sendFirstFramesOfAudioFile()
 }
 
 void sendNextFramesOfAudioFile(){
+loop:
   /* ファイル終了までループで新しいフレームをデコードに送る */
   int err = theAudio->writeFrames(AudioClass::Player0, audioFile);
 
@@ -121,14 +122,15 @@ void sendNextFramesOfAudioFile(){
   //アプリケーションで同時に処理される処理内容に応じて調整してください。
   usleep(40000);
 
-  return;
+  goto loop;
 
 stop_player:
   theAudio->stopPlayer(AudioClass::Player0);
   audioFile.close();
   theAudio->setReadyMode();
   theAudio->end();
-  exit(1);
+  // exit(1); //loopの終了
+  return;
 }
 
 /**
