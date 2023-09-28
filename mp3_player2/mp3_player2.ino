@@ -2,7 +2,7 @@
 #include <Audio.h>
 
 SDClass theSD;
-AudioClass *theAudio;
+AudioClass *theAudio; //ポインタ
 
 File audioFile;
 
@@ -12,34 +12,11 @@ bool ErrEnd = false;
 void setup()
 {
   SdSetup();
-
-  err_t err = AudioSetup();
-
-  /* Open file placed on SD card */
-  audioFile = theSD.open("mp3/sample.mp3");
-
-  /* Verify file open */
-  if (!audioFile)
-    {
-      printf("File open error\n");
-      exit(1);
-    }
-  printf("Open! 0x%08lx\n", (uint32_t)audioFile);
-
-  /* Send first frames to be decoded */
-  err = theAudio->writeFrames(AudioClass::Player0, audioFile);
-
-  if ((err != AUDIOLIB_ECODE_OK) && (err != AUDIOLIB_ECODE_FILEEND))
-    {
-      printf("File Read Error! =%d\n",err);
-      audioFile.close();
-      exit(1);
-    }
-
-  puts("Play!");
-
-  /* Main volume set to -16.0 dB */
-  theAudio->setVolume(-600);
+  
+  AudioSetup();
+  openAudioFileInSd("mp3/sample.mp3");
+  sendFirstFramesOfAudioFile();
+  theAudio->setVolume(-600); //-60dB
   theAudio->startPlayer(AudioClass::Player0);
 }
 
@@ -95,7 +72,7 @@ void SdSetup(){
   Serial.println("SD Prepared");
 }
 
-err_t AudioSetup(){
+void AudioSetup(){
   // start audio system
   theAudio = AudioClass::getInstance();
 
@@ -122,8 +99,33 @@ err_t AudioSetup(){
       printf("Player0 initialize error\n");
       exit(1);
     }
+}
 
-  return err;
+void openAudioFileInSd(char* mp3Filepath)
+{
+  /* Open file placed on SD card */
+  audioFile = theSD.open(mp3Filepath);
+
+  /* Verify file open */
+  if (!audioFile)
+    {
+      printf("File open error\n");
+      exit(1);
+    }
+  printf("Open! 0x%08lx\n", (uint32_t)audioFile);
+}
+
+void sendFirstFramesOfAudioFile()
+{
+  /* Send first frames to be decoded */
+  err_t err = theAudio->writeFrames(AudioClass::Player0, audioFile);
+
+  if ((err != AUDIOLIB_ECODE_OK) && (err != AUDIOLIB_ECODE_FILEEND))
+    {
+      printf("File Read Error! =%d\n",err);
+      audioFile.close();
+      exit(1);
+    }
 }
 
 /**
