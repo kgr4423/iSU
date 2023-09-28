@@ -9,6 +9,97 @@ File myFile;
 bool ErrEnd = false;
 
 
+void setup()
+{
+  SdSetup();
+
+  err_t err = AudioSetup();
+
+  /* Verify player initialize */
+  if (err != AUDIOLIB_ECODE_OK)
+    {
+      printf("Player0 initialize error\n");
+      exit(1);
+    }
+
+  /* Open file placed on SD card */
+  myFile = theSD.open("mp3/sample.mp3");
+
+  /* Verify file open */
+  if (!myFile)
+    {
+      printf("File open error\n");
+      exit(1);
+    }
+  printf("Open! 0x%08lx\n", (uint32_t)myFile);
+
+  /* Send first frames to be decoded */
+  err = theAudio->writeFrames(AudioClass::Player0, myFile);
+
+  if ((err != AUDIOLIB_ECODE_OK) && (err != AUDIOLIB_ECODE_FILEEND))
+    {
+      printf("File Read Error! =%d\n",err);
+      myFile.close();
+      exit(1);
+    }
+
+  puts("Play!");
+
+  /* Main volume set to -16.0 dB */
+  theAudio->setVolume(-600);
+  theAudio->startPlayer(AudioClass::Player0);
+}
+
+void loop()
+{
+  puts("loop!!");
+
+  /* Send new frames to decode in a loop until file ends */
+  int err = theAudio->writeFrames(AudioClass::Player0, myFile);
+
+  /*  Tell when player file ends */
+  if (err == AUDIOLIB_ECODE_FILEEND)
+    {
+      printf("Main player File End!\n");
+    }
+
+  /* Show error code from player and stop */
+  if (err)
+    {
+      printf("Main player error code: %d\n", err);
+      goto stop_player;
+    }
+
+  if (ErrEnd)
+    {
+      printf("Error End\n");
+      goto stop_player;
+    }
+
+  /* This sleep is adjusted by the time to read the audio stream file.
+   * Please adjust in according with the processing contents
+   * being processed at the same time by Application.
+   *
+   * The usleep() function suspends execution of the calling thread for usec
+   * microseconds. But the timer resolution depends on the OS system tick time
+   * which is 10 milliseconds (10,000 microseconds) by default. Therefore,
+   * it will sleep for a longer time than the time requested here.
+   */
+
+  usleep(40000);
+
+
+  /* Don't go further and continue play */
+  return;
+
+stop_player:
+  theAudio->stopPlayer(AudioClass::Player0);
+  myFile.close();
+  theAudio->setReadyMode();
+  theAudio->end();
+  exit(1);
+}
+
 //
 // SDの初期化
 //
@@ -65,110 +156,4 @@ static void audio_attention_cb(const ErrorAttentionParam *atprm)
     {
       ErrEnd = true;
    }
-}
-
-/**
- * @brief Setup audio player to play mp3 file
- *
- * Set clock mode to normal <br>
- * Set output device to speaker <br>
- * Set main player to decode stereo mp3. Stream sample rate is set to "auto detect" <br>
- * System directory "/mnt/sd0/BIN" will be searched for MP3 decoder (MP3DEC file)
- * Open "Sound.mp3" file <br>
- * Set master volume to -16.0 dB
- */
-void setup()
-{
-  SdSetup();
-
-  err_t err = AudioSetup();
-
-  /* Verify player initialize */
-  if (err != AUDIOLIB_ECODE_OK)
-    {
-      printf("Player0 initialize error\n");
-      exit(1);
-    }
-
-  /* Open file placed on SD card */
-  myFile = theSD.open("mp3/sample.mp3");
-
-  /* Verify file open */
-  if (!myFile)
-    {
-      printf("File open error\n");
-      exit(1);
-    }
-  printf("Open! 0x%08lx\n", (uint32_t)myFile);
-
-  /* Send first frames to be decoded */
-  err = theAudio->writeFrames(AudioClass::Player0, myFile);
-
-  if ((err != AUDIOLIB_ECODE_OK) && (err != AUDIOLIB_ECODE_FILEEND))
-    {
-      printf("File Read Error! =%d\n",err);
-      myFile.close();
-      exit(1);
-    }
-
-  puts("Play!");
-
-  /* Main volume set to -16.0 dB */
-  theAudio->setVolume(-600);
-  theAudio->startPlayer(AudioClass::Player0);
-}
-
-/**
- * @brief Play stream
- *
- * Send new frames to decode in a loop until file ends
- */
-void loop()
-{
-  puts("loop!!");
-
-  /* Send new frames to decode in a loop until file ends */
-  int err = theAudio->writeFrames(AudioClass::Player0, myFile);
-
-  /*  Tell when player file ends */
-  if (err == AUDIOLIB_ECODE_FILEEND)
-    {
-      printf("Main player File End!\n");
-    }
-
-  /* Show error code from player and stop */
-  if (err)
-    {
-      printf("Main player error code: %d\n", err);
-      goto stop_player;
-    }
-
-  if (ErrEnd)
-    {
-      printf("Error End\n");
-      goto stop_player;
-    }
-
-  /* This sleep is adjusted by the time to read the audio stream file.
-   * Please adjust in according with the processing contents
-   * being processed at the same time by Application.
-   *
-   * The usleep() function suspends execution of the calling thread for usec
-   * microseconds. But the timer resolution depends on the OS system tick time
-   * which is 10 milliseconds (10,000 microseconds) by default. Therefore,
-   * it will sleep for a longer time than the time requested here.
-   */
-
-  usleep(40000);
-
-
-  /* Don't go further and continue play */
-  return;
-
-stop_player:
-  theAudio->stopPlayer(AudioClass::Player0);
-  myFile.close();
-  theAudio->setReadyMode();
-  theAudio->end();
-  exit(1);
 }
