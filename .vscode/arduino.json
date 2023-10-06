@@ -1,6 +1,6 @@
 {
-    "configuration": "Core=Main,Memory=768,Debug=Disabled,UploadSpeed=115200",
-    "board": "SPRESENSE:spresense:spresense",
-    "sketch": "mp3_player2\\mp3_player2.ino",
-    "port": "COM3"
+    "configuration": "Core=Main,Memory=1152,Debug=Disabled,UploadSpeed=115200",
+    "board": "SPRESENSE_tensorflow:spresense:spresense",
+    "sketch": "spresense_tf_person_detect_by_camera\\spresense_tf_person_detect_by_camera.ino",
+    "port": "COM4"
 }

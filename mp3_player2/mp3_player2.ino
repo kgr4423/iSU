@@ -8,7 +8,6 @@ File audioFile;
 
 bool ErrEnd = false;
 
-
 void setup()
 {
   SdSetup();
