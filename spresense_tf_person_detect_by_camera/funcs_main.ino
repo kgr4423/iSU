@@ -1,8 +1,15 @@
 // コールバック関数内の関数まとめ
-
 uint16_t* getImageData(CamImage img){
-    /* フレームメモリから画像データを取得 */
-    uint16_t* buf = (uint16_t*)img.getImgBuff();   
+    if (!img.isAvailable()) {
+        Serial.println("img is not available");
+        return;
+    }
+    uint16_t* buf = (uint16_t*)img.getImgBuff();
+
+    return buf;
+}
+
+void setImageForPersonDetection(uint16_t* buf){
     int n = 0; 
     for (int y = offset_y; y < offset_y + target_h; ++y) {
         for (int x = offset_x; x < offset_x + target_w; ++x) {
@@ -15,8 +22,6 @@ uint16_t* getImageData(CamImage img){
         input->data.f[n++] = (float)(value)/255.0;
         }
     }
-
-    return buf;
 }
 
 bool detectPersonInImage(){
@@ -27,11 +32,12 @@ bool detectPersonInImage(){
         return;
     }
 
-    bool result = false;
-    int8_t person_score = output->data.uint8[1];
-    int8_t no_person_score = output->data.uint8[0];
+    person_score = output->data.uint8[1];
+    no_person_score = output->data.uint8[0];
     Serial.print("Person = " + String(person_score) + ", ");
     Serial.println("No_person = " + String(no_person_score));
+
+    bool result = false;
     if ((person_score > no_person_score) && (person_score > 10)) {
         digitalWrite(LED3, HIGH);
         result = true;
@@ -42,7 +48,7 @@ bool detectPersonInImage(){
     return result;
 }
 
-int sitcountUpdater(int mode, bool personDetected){
+int sitcountUpdater(bool personDetected){
     int delta;
     switch(mode){
         case 0:
@@ -90,9 +96,8 @@ int sitcountUpdater(int mode, bool personDetected){
     return delta;
 }
 
-int determineMode(int sintCount, int safe_width, int attention_width, int danger_width){
-    int mode;
-    if(sitCount = 0){
+void determineMode(int safe_width, int attention_width, int danger_width){
+    if(sitCount == 0){
         mode = 0;
     }else if(1 <= sitCount && sitCount <= safe_width){
         mode = 1;
@@ -100,9 +105,10 @@ int determineMode(int sintCount, int safe_width, int attention_width, int danger
         mode = 2;
     }else if(attention_width + 1 <= sitCount && sitCount <= danger_width){
         mode = 3;
-    }else{
+    }else if(danger_width + 1 <= sitCount && mode != 0){
         mode = 4;
+    }else{
+        mode = 0;
     }
-    return mode;
 }
 

@@ -32,6 +32,8 @@ int mode = 0;
 int safe_width = 30;
 int attention_width = 40;
 int danger_width = 50;
+int person_score;
+int no_person_score;
 
 /* カメラストリームのコールバック関数 */
 /* カメラで画像がキャプチャされる度にこの関数が呼ばれる */
@@ -39,28 +41,28 @@ int danger_width = 50;
 void CamCB(CamImage img) {
   static uint32_t last_mills = 0;
 
-  /* キャプチャ画像の取得 */
-  if (!img.isAvailable()) {
-      Serial.println("img is not available");
-      return;
-  }
-  uint16_t* imgBuff = getImageData(img);
-
+  /* キャプチャ画像データの取得 */
+  uint16_t* buf = getImageData(img);
+  
+  /* 人認識用に画像データを整形しTensorFlowの入力バッファにセット */
+  setImageForPersonDetection(buf);
+  /* スイッチによる判定閾値の更新 */
+  //
   /* 人の有無判定 */ 
   bool personDetected = detectPersonInImage();
 
   /* カウンタの更新 */
-  int delta = sitcountUpdater(mode,personDetected);
+  int delta = sitcountUpdater(personDetected);
   sitCount = sitCount + delta;
-
   /* モードの更新 */
-  mode = determineMode(sitCount, safe_width, attention_width, danger_width);
-
+  determineMode(safe_width, attention_width, danger_width);
   /* 警告処理 */
-  //alert(mode); //未実装
 
+  /* 各種パラメータの表示 */
+  resetTextArea();
+  displayText();
   /* キャプチャ画像の表示 */
-  disp_image(imgBuff, offset_x, offset_y, target_w, target_h, personDetected);
+  display_image(buf, offset_x, offset_y, target_w, target_h, personDetected);
   
   /* 処理時間の測定と表示 */
   uint32_t current_mills = millis();
