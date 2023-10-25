@@ -90,7 +90,8 @@
 			"__tree": "cpp",
 			"map": "cpp",
 			"set": "cpp",
-			"span": "cpp"
+			"span": "cpp",
+			"__memory": "cpp"
 		}
 	}
 }

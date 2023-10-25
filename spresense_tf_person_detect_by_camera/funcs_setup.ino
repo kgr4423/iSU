@@ -1,3 +1,5 @@
+// setup()関数内の関数まとめ
+
 void setup_tensorflow(){
   tflite::InitializeTarget();
   memset(tensor_arena, 0, kTensorArenaSize*sizeof(uint8_t));

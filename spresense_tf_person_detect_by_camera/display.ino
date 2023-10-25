@@ -1,3 +1,5 @@
+//LCDモニタ関連の関数
+
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
 
