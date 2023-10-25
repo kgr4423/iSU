@@ -86,7 +86,11 @@
 			"locale": "cpp",
 			"queue": "cpp",
 			"stack": "cpp",
-			"filesystem": "cpp"
+			"filesystem": "cpp",
+			"__tree": "cpp",
+			"map": "cpp",
+			"set": "cpp",
+			"span": "cpp"
 		}
 	}
 }

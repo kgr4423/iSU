@@ -18,7 +18,7 @@ int inference_count = 0;
 constexpr int kTensorArenaSize = 100000;
 uint8_t tensor_arena[kTensorArenaSize];
 
-/* cropping and scaling parameters */
+/* 切り取り・拡大縮小のパラメータ */
 const int offset_x = 32;
 const int offset_y = 12;
 const int width    = 160;
@@ -27,8 +27,8 @@ const int target_w = 96;
 const int target_h = 96;
 const int pixfmt   = CAM_IMAGE_PIX_FMT_YUV422;
 
-/* callback function of the camera streaming */
-/* the inference process is done in this function */ 
+/* カメラストリームのコールバック関数 */
+/* 人認識の推論もこの関数内で行われる */ 
 void CamCB(CamImage img) {
   static uint32_t last_mills = 0;
 
@@ -37,17 +37,17 @@ void CamCB(CamImage img) {
     return;
   }
 
-  /* get image data from the frame memory */
+  /* フレームメモリから画像データを取得 */
   uint16_t* buf = (uint16_t*)img.getImgBuff();   
   int n = 0; 
   for (int y = offset_y; y < offset_y + target_h; ++y) {
     for (int x = offset_x; x < offset_x + target_w; ++x) {
-      /* extracting luminance data from YUV422 data */
+      /* YUV422データから輝度データ抽出 */
       uint16_t value = buf[y*width + x];
       uint16_t y_h = (value & 0xf000) >> 8;
       uint16_t y_l = (value & 0x00f0) >> 4;
       value = (y_h | y_l);  /* luminance data */
-      /* set the grayscale data to the input buffer for TensorFlow  */
+      /* グレスケデータをTensorFlowの入力バッファにセット */
       input->data.f[n++] = (float)(value)/255.0;
     }
   }
@@ -59,7 +59,9 @@ void CamCB(CamImage img) {
     return;
   }
 
-  /* get the result */
+  
+
+  /* 推論結果の取得 */
   bool result = false;
   int8_t person_score = output->data.uint8[1];
   int8_t no_person_score = output->data.uint8[0];
@@ -72,7 +74,15 @@ void CamCB(CamImage img) {
     digitalWrite(LED3, LOW);
   }
 
-  /* display the captured data */
+  /* 人の有無判定 */
+
+  /* カウンタの更新 */
+
+  /* モードの更新 */
+
+  /* 警告処理 */
+
+  /* キャプチャ画像の表示 */
   disp_image(buf, offset_x, offset_y, target_w, target_h, result);
   
   uint32_t current_mills = millis();
@@ -85,72 +95,8 @@ void CamCB(CamImage img) {
 void setup() {
   Serial.begin(115200);
   setup_display();
-
-  tflite::InitializeTarget();
-  memset(tensor_arena, 0, kTensorArenaSize*sizeof(uint8_t));
-  
-  // Set up logging. 
-  static tflite::MicroErrorReporter micro_error_reporter;
-  error_reporter = &micro_error_reporter;
-
-  // Map the model into a usable data structure..
-  model = tflite::GetModel(model_tflite);
-  if (model->version() != TFLITE_SCHEMA_VERSION) {
-    Serial.println("Model provided is schema version " 
-                  + String(model->version()) + " not equal "
-                  + "to supported version "
-                  + String(TFLITE_SCHEMA_VERSION));
-    return;
-  } else {
-    Serial.println("Model version: " + String(model->version()));
-  }
-  // This pulls in all the operation implementations we need.
-  static tflite::AllOpsResolver resolver;
-  
-  // Build an interpreter to run the model with.
-  static tflite::MicroInterpreter static_interpreter(
-      model, resolver, tensor_arena, kTensorArenaSize, error_reporter);
-  interpreter = &static_interpreter;
-  
-  // Allocate memory from the tensor_arena for the model's tensors.
-  TfLiteStatus allocate_status = interpreter->AllocateTensors();
-  if (allocate_status != kTfLiteOk) {
-    Serial.println("AllocateTensors() failed");
-    return;
-  } else {
-    Serial.println("AllocateTensor() Success");
-  }
-
-  size_t used_size = interpreter->arena_used_bytes();
-  Serial.println("Area used bytes: " + String(used_size));
-  input = interpreter->input(0);
-  output = interpreter->output(0);
-
-  Serial.println("Model input:");
-  Serial.println("dims->size: " + String(input->dims->size));
-  for (int n = 0; n < input->dims->size; ++n) {
-    Serial.println("dims->data[" + String(n) + "]: " + String(input->dims->data[n]));
-  }
-
-  Serial.println("Model output:");
-  Serial.println("dims->size: " + String(output->dims->size));
-  for (int n = 0; n < output->dims->size; ++n) {
-    Serial.println("dims->data[" + String(n) + "]: " + String(output->dims->data[n]));
-  }
-
-  Serial.println("Completed tensorflow setup");
-  digitalWrite(LED0, HIGH); 
-  
-  CamErr err = theCamera.begin(1, CAM_VIDEO_FPS_15, width, height, pixfmt);
-  if (err != CAM_ERR_SUCCESS) {
-    Serial.println("camera begin err: " + String(err));
-    return;
-  }
-  err = theCamera.startStreaming(true, CamCB);
-  if (err != CAM_ERR_SUCCESS) {
-    Serial.println("start streaming err: " + String(err));
-    return;
-  }
+  setup_tensorflow();
+  setup_camera();
 }
 
 void loop() {
