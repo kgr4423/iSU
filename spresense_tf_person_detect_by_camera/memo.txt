@@ -1,6 +1,0 @@
-tensorflow/liteをdocuments/arduino/librariesにいれる
-ILI9341をライブラリ管理からいれる
-Adafruit_GFXをライブラリ管理からいれる
-メモリを1152KBにする
-ボードをSpresense boardsではなくspresense tensorflow boardsにする
-ボードの電源を変える3.3ボルトに変更する

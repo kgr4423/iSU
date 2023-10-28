@@ -28,18 +28,20 @@ void resetTextArea(){
 void displayText(){
   tft.setTextColor(ILI9341_BLACK);
   tft.setTextSize(2);
+  tft.setCursor(175, 54);
+  tft.print(" #Person");
   tft.setCursor(175, 72);
-  tft.print("person:");
-  tft.println(person_score);
+  tft.print(" True :");
+  tft.print(person_score);
   tft.setCursor(175, 90);
-  tft.print("    no:");
-  tft.println(no_person_score);
+  tft.print(" False:");
+  tft.print(no_person_score);
   tft.setCursor(175, 126);
   tft.print(" count:");
-  tft.println(sitCount);
+  tft.print(sitCount);
   tft.setCursor(175, 144);
   tft.print("  mode:");
-  tft.println(mode);
+  tft.print(mode);
 }
 
 void display_image(uint16_t* buf, int offset_x, int offset_y

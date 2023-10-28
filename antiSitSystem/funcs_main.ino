@@ -87,8 +87,7 @@ int sitcountUpdater(bool personDetected){
             if(personDetected){
                 delta = 0;
             }else{
-                delta = 0;
-                mode = 0;
+                sitCount = 0;
             }
             break;
     }
@@ -105,10 +104,8 @@ void determineMode(int safe_width, int attention_width, int danger_width){
         mode = 2;
     }else if(attention_width + 1 <= sitCount && sitCount <= danger_width){
         mode = 3;
-    }else if(danger_width + 1 <= sitCount && mode != 0){
-        mode = 4;
     }else{
-        mode = 0;
+        mode = 4;
     }
 }
 
