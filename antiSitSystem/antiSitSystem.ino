@@ -36,8 +36,8 @@ File audioFile;
 bool ErrEnd = false;
 
 int sitCount = 0;
-int last_mode = 0;
-int mode = 0;
+char* last_mode = "end";
+char* mode = "end";
 int safe_width = 30;
 int attention_width = 40;
 int danger_width = 50;
@@ -64,7 +64,7 @@ void CamCB(CamImage img) {
   /* モードの更新 */
   determineMode(safe_width, attention_width, danger_width);
   /* 警告処理 */
-  alert(mode);
+  alert();
 
   /* 各種パラメータの表示 */
   resetTextArea();

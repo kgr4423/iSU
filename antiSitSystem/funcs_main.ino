@@ -51,7 +51,7 @@ bool detectPersonInImage(){
 int sitcountUpdater(bool personDetected){
     int delta;
     switch(mode){
-        case 0:
+        case "start":
             if(personDetected){
                 delta = 1;
             }else{
@@ -59,7 +59,7 @@ int sitcountUpdater(bool personDetected){
             }
             break;
 
-        case 1:
+        case "safe":
             if(personDetected){
                 delta = 1;
             }else{
@@ -67,7 +67,7 @@ int sitcountUpdater(bool personDetected){
             }
             break;
 
-        case 2:
+        case "attention":
             if(personDetected){
                 delta = 1;
             }else{
@@ -75,7 +75,7 @@ int sitcountUpdater(bool personDetected){
             }
             break;
 
-        case 3:
+        case "danger":
             if(personDetected){
                 delta = 0;
             }else{
@@ -83,7 +83,7 @@ int sitcountUpdater(bool personDetected){
             }
             break;
 
-        case 4:
+        case "end":
             if(personDetected){
                 delta = 0;
             }else{
@@ -98,32 +98,32 @@ int sitcountUpdater(bool personDetected){
 void determineMode(int safe_width, int attention_width, int danger_width){
     last_mode = mode;
     if(sitCount == 0){
-        mode = 0;
+        mode = "start";
     }else if(1 <= sitCount && sitCount <= safe_width){
-        mode = 1;
+        mode = "safe";
     }else if(safe_width + 1 <= sitCount && sitCount <= attention_width){
-        mode = 2;
+        mode = "attention";
     }else if(attention_width + 1 <= sitCount && sitCount <= danger_width){
-        mode = 3;
+        mode = "danger";
     }else{
-        mode = 4;
+        mode = "end";
     }
 }
 
-void alert(int mode){
-    if(mode == 2 && last_mode == 1){
+void alert(){
+    if(mode == "start" && last_mode == "end"){
+        playAudioFile("mp3/start_alert.mp3";)
+    }
+    if(mode == "attention" && last_mode == "safe"){
         playAudioFile("mp3/attention_alert.mp3");
     }
-    if(mode == 2){
+    if(mode == "attention"){
 
     }
-    if(mode == 3 && last_mode == 2){
+    if(mode == "danger" && last_mode == "attention"){
         playAudioFile("mp3/danger_alert.mp3";)
     }
-    if(mode == 3){
+    if(mode == "danger"){
 
-    }
-    if(mode == 0 && last_mode == 4){
-        playAudioFile("mp3/safeStart_alert.mp3";)
     }
 }
