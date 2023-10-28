@@ -1,4 +1,6 @@
 #include <Camera.h>
+#include <SDHCI.h>
+#include <Audio.h>
 
 #include "tensorflow/lite/micro/all_ops_resolver.h"
 #include "tensorflow/lite/micro/micro_error_reporter.h"
@@ -18,7 +20,7 @@ int inference_count = 0;
 constexpr int kTensorArenaSize = 100000;
 uint8_t tensor_arena[kTensorArenaSize];
 
-/* 切り取り・拡大縮小のパラメータ */
+/* キャプチャ画像の切り取り・拡大縮小のパラメータ */
 const int offset_x = 32;
 const int offset_y = 12;
 const int width    = 160;
@@ -27,7 +29,14 @@ const int target_w = 96;
 const int target_h = 96;
 const int pixfmt   = CAM_IMAGE_PIX_FMT_YUV422;
 
+/* Audio関連*/
+SDClass theSD;
+AudioClass *theAudio; //ポインタ
+File audioFile;
+bool ErrEnd = false;
+
 int sitCount = 0;
+int last_mode = 0;
 int mode = 0;
 int safe_width = 30;
 int attention_width = 40;
@@ -55,6 +64,7 @@ void CamCB(CamImage img) {
   /* モードの更新 */
   determineMode(safe_width, attention_width, danger_width);
   /* 警告処理 */
+  alert(mode);
 
   /* 各種パラメータの表示 */
   resetTextArea();
@@ -75,6 +85,9 @@ void setup() {
   setup_display();
   setup_tensorflow();
   setup_camera();
+  
+  // Get instance of AudioClass for singleton
+  theAudio = AudioClass::getInstance();
 }
 
 void loop() {

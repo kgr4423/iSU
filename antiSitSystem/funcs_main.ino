@@ -96,6 +96,7 @@ int sitcountUpdater(bool personDetected){
 }
 
 void determineMode(int safe_width, int attention_width, int danger_width){
+    last_mode = mode;
     if(sitCount == 0){
         mode = 0;
     }else if(1 <= sitCount && sitCount <= safe_width){
@@ -109,3 +110,20 @@ void determineMode(int safe_width, int attention_width, int danger_width){
     }
 }
 
+void alert(int mode){
+    if(mode == 2 && last_mode == 1){
+        playAudioFile("mp3/attention_alert.mp3");
+    }
+    if(mode == 2){
+
+    }
+    if(mode == 3 && last_mode == 2){
+        playAudioFile("mp3/danger_alert.mp3";)
+    }
+    if(mode == 3){
+
+    }
+    if(mode == 0 && last_mode == 4){
+        playAudioFile("mp3/safeStart_alert.mp3";)
+    }
+}

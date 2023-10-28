@@ -10,28 +10,27 @@ void SdSetup(){
   Serial.println("SD Prepared");
 }
 
+void playAudioFile(char* audioFilepath){
+  AudioSetup();
+  openAudioFileInSd(audioFilepath);
+  sendFirstFramesOfAudioFile();
+  theAudio->setVolume(-600); //-60dB
+  theAudio->startPlayer(AudioClass::Player0);
+  sendNextFramesOfAudioFile();
+}
+
 void AudioSetup(){
-  // start audio system
-  theAudio = AudioClass::getInstance();
-
+  // audio library と HW modules を初期化
   theAudio->begin(audio_attention_cb);
-
-  puts("initialization Audio Library");
-
-  /* クロックモードをノーマルに設定する */
+  //クロックモードをノーマルに設定する
   theAudio->setRenderingClockMode(AS_CLKMODE_NORMAL);
-
   //第一引数で出力デバイスをスピーカーに設定している
   //第2引数でスピーカードライバモードを LineOut に設定している
   theAudio->setPlayerMode(AS_SETPLAYER_OUTPUTDEVICE_SPHP, AS_SP_DRV_MODE_LINEOUT);
-
-  /*
-   * メインプレーヤーがステレオMP3をデコードするように設定する。ストリームのサンプルレートは "自動検出 "に設定されています。
-   * mnt/sd0/BIN "ディレクトリでMP3デコーダーを検索する。
-   */
+  // メインプレーヤーがステレオMP3をデコードするように設定する
+  //mnt/sd0/BIN "ディレクトリでMP3デコーダーを検索する 
   err_t err = theAudio->initPlayer(AudioClass::Player0, AS_CODECTYPE_MP3, "/mnt/sd0/BIN", AS_SAMPLINGRATE_AUTO, AS_CHANNEL_STEREO);
-
-  /* Verify player initialize */
+  // Playerの初期化を確認
   if (err != AUDIOLIB_ECODE_OK)
     {
       printf("Player0 initialize error\n");
