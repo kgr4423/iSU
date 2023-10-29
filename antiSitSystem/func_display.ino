@@ -40,7 +40,7 @@ void displayText(){
   tft.print(" count:");
   tft.print(sitCount);
   tft.setCursor(175, 144);
-  tft.print("  mode:");
+  tft.print("mode:");
   tft.print(mode);
 }
 

@@ -1,6 +1,7 @@
 {
     "configuration": "Core=Main,Memory=1152,Debug=Disabled,UploadSpeed=115200",
     "board": "SPRESENSE_tensorflow:spresense:spresense",
-    "sketch": "spresense_tf_person_detect_by_camera\\spresense_tf_person_detect_by_camera.ino",
-    "port": "COM4"
+    "sketch": "antiSitSystem\\antiSitSystem.ino",
+    "port": "COM4",
+    "programmer": "sfutools"
 }
