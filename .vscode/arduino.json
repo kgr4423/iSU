@@ -1,5 +1,5 @@
 {
-    "configuration": "Core=Main,Memory=1152,Debug=Disabled,UploadSpeed=115200",
+    "configuration": "Core=Main,Memory=1152,Debug=Disabled,UploadSpeed=460800",
     "board": "SPRESENSE_tensorflow:spresense:spresense",
     "sketch": "antiSitSystem\\antiSitSystem.ino",
     "port": "COM4",

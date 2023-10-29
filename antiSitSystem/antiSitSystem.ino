@@ -1,7 +1,3 @@
-#include <Camera.h>
-#include <SDHCI.h>
-#include <Audio.h>
-
 #include "tensorflow/lite/micro/all_ops_resolver.h"
 #include "tensorflow/lite/micro/micro_error_reporter.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
@@ -9,6 +5,10 @@
 #include "tensorflow/lite/schema/schema_generated.h"
 
 #include "person_detect_model.h" //使用する推論モデル
+
+#include <Camera.h>
+#include <Audio.h>
+#include <SDHCI.h>
 
 tflite::ErrorReporter* error_reporter = nullptr;
 const tflite::Model* model = nullptr;
@@ -36,8 +36,8 @@ File audioFile;
 bool ErrEnd = false;
 
 int sitCount = 0;
-int last_mode = "end";
-int mode = "end";
+int last_mode = 4;
+int mode = 4;
 int safe_width = 30;
 int attention_width = 40;
 int danger_width = 50;
@@ -71,7 +71,7 @@ void CamCB(CamImage img) {
   displayText();
   /* キャプチャ画像の表示 */
   display_image(buf, offset_x, offset_y, target_w, target_h, personDetected);
-  
+
   /* 処理時間の測定と表示 */
   uint32_t current_mills = millis();
   uint32_t duration = current_mills - last_mills;
@@ -82,12 +82,14 @@ void CamCB(CamImage img) {
 
 void setup() {
   Serial.begin(115200);
+
+  SdSetup();
+  // // Get instance of AudioClass for singleton
+  theAudio = AudioClass::getInstance();
+
   setup_display();
   setup_tensorflow();
   setup_camera();
-  
-  // Get instance of AudioClass for singleton
-  theAudio = AudioClass::getInstance();
 }
 
 void loop() {

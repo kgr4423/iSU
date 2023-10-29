@@ -19,6 +19,7 @@ int box_ey = 15;
 void setup_display() {
   tft.begin(); 
   tft.setRotation(3);  
+  tft.writeFillRect(0, 0, 320, 240, 0xFFFF);
 }
 
 void resetTextArea(){
@@ -40,7 +41,7 @@ void displayText(){
   tft.print(" count:");
   tft.print(sitCount);
   tft.setCursor(175, 144);
-  tft.print("mode:");
+  tft.print("  mode:");
   tft.print(mode);
 }
 
