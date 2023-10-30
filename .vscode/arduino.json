@@ -1,7 +1,7 @@
 {
     "configuration": "Core=Main,Memory=1152,Debug=Disabled,UploadSpeed=460800",
     "board": "SPRESENSE_tensorflow:spresense:spresense",
-    "sketch": "antiSitSystem\\antiSitSystem.ino",
+    "sketch": "piezo\\piezo.ino",
     "port": "COM4",
     "programmer": "sfutools"
 }
