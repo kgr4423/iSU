@@ -113,16 +113,38 @@ void determineMode(int safe_width, int attention_width, int danger_width){
 
 void alert(){
     if(mode == 0 && last_mode == 4){
-        playAudioFile("mp3/start_alert.mp3");
+        tone(beep_pin, 300);
+        delay(100);
+        noTone(beep_pin);
+        delay(10);
+        tone(beep_pin, 300);
+        delay(100);
+        noTone(beep_pin);
     }
     if(mode == 2 && last_mode == 1){
-        playAudioFile("mp3/attention_alert.mp3");
+        tone(beep_pin, 440);
+        delay(100);
+        noTone(beep_pin);
+        delay(10);
+        tone(beep_pin, 440);
+        delay(100);
+        noTone(beep_pin);
     }
     if(mode == 2){
 
     }
     if(mode == 3 && last_mode == 2){
-        playAudioFile("mp3/danger_alert.mp3");
+        tone(beep_pin, 600);
+        delay(500);
+        noTone(beep_pin);
+        delay(500);
+        tone(beep_pin, 600);
+        delay(500);
+        noTone(beep_pin);
+        delay(500);
+        tone(beep_pin, 600);
+        delay(500);
+        noTone(beep_pin);
     }
     if(mode == 3){
 

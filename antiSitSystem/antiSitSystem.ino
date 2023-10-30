@@ -7,8 +7,6 @@
 #include "person_detect_model.h" //使用する推論モデル
 
 #include <Camera.h>
-#include <Audio.h>
-#include <SDHCI.h>
 
 tflite::ErrorReporter* error_reporter = nullptr;
 const tflite::Model* model = nullptr;
@@ -29,18 +27,14 @@ const int target_w = 96;
 const int target_h = 96;
 const int pixfmt   = CAM_IMAGE_PIX_FMT_YUV422;
 
-/* Audio関連*/
-SDClass theSD;
-AudioClass *theAudio; //ポインタ
-File audioFile;
-bool ErrEnd = false;
+const int beep_pin = 14; //音声出力ピンの設定
 
 int sitCount = 0;
 int last_mode = 4;
 int mode = 4;
-int safe_width = 30;
-int attention_width = 40;
-int danger_width = 50;
+int safe_width = 10;
+int attention_width = 20;
+int danger_width = 30;
 int person_score;
 int no_person_score;
 
@@ -64,7 +58,7 @@ void CamCB(CamImage img) {
   /* モードの更新 */
   determineMode(safe_width, attention_width, danger_width);
   /* 警告処理 */
-  // alert();
+  alert();
 
   /* 各種パラメータの表示 */
   resetTextArea();
@@ -82,10 +76,7 @@ void CamCB(CamImage img) {
 
 void setup() {
   Serial.begin(115200);
-
-  SdSetup();
-  // // Get instance of AudioClass for singleton
-  theAudio = AudioClass::getInstance();
+  pinMode(beep_pin, OUTPUT);
 
   setup_display();
   setup_tensorflow();
