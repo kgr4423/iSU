@@ -57,14 +57,13 @@ void CamCB(CamImage img) {
   sitCount = sitCount + delta;
   /* モードの更新 */
   determineMode(safe_width, attention_width, danger_width);
-  /* 警告処理 */
-  alert();
-
 
   /* キャプチャ画像の表示 */
   display_image(buf, personDetected);
   /* 各種パラメータの表示 */
   displayText();
+    /* 警告処理 */
+  alert();
 
   /* 処理時間の測定と表示 */
   uint32_t current_mills = millis();

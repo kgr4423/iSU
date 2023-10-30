@@ -61,14 +61,23 @@ void display_image(uint16_t* buf, bool result) {
         disp[n+1] = (value5 << 11) | (value6 << 5) | value5;
         disp[320+n] = (value5 << 11) | (value6 << 5) | value5;
         disp[320+n+1] = (value5 << 11) | (value6 << 5) | value5;
-        if (result && (10 <= y) && (y <= 20) && (110 <= x) && (x <= 130)) {
+        if (result && (10 <= y) && (y <= 20) && (110 <= x) && (x <= 130)){
+          disp[n] = ILI9341_RED;
+          disp[n+1] = ILI9341_RED;
+          disp[320+n] = ILI9341_RED;
+          disp[320+n+1] = ILI9341_RED;
+        }
+        if (x == 32 || x == 128 || y == 12 || y == 108){
+          disp[n] = ILI9341_RED;
+        }
+        if (mode == 3 && (x <= 5 || 155 <= x || y <= 5 || 115 <= y)){
           disp[n] = ILI9341_RED;
           disp[n+1] = ILI9341_RED;
           disp[320+n] = ILI9341_RED;
           disp[320+n+1] = ILI9341_RED;
         }
         n = n + 2;
-        if(n % 320 == 0){
+        if (n % 320 == 0){
           n = n + 320;
         }
         disp[n] = (value5 << 11) | (value6 << 5) | value5;
