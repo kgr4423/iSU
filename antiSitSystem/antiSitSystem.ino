@@ -60,12 +60,11 @@ void CamCB(CamImage img) {
   /* 警告処理 */
   alert();
 
-  /* 各種パラメータの表示 */
-  resetTextArea();
-  displayText();
+
   /* キャプチャ画像の表示 */
-  // display_image(buf, offset_x, offset_y, target_w, target_h, personDetected);
-  display_image2(buf, offset_x, offset_y, target_w, target_h, personDetected);
+  display_image(buf, personDetected);
+  /* 各種パラメータの表示 */
+  displayText();
 
   /* 処理時間の測定と表示 */
   uint32_t current_mills = millis();
