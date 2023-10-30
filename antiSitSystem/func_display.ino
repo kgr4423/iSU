@@ -8,7 +8,8 @@
 #define TFT_DC  9
 #define TFT_CS  10
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS ,TFT_DC ,TFT_RST);
-uint16_t disp[target_w*target_h];
+uint16_t disp[160*40];
+// uint16_t disp[target_w*target_h];
 
 /* indicator box */
 int box_sx = 80;
@@ -65,6 +66,66 @@ void display_image(uint16_t* buf, int offset_x, int offset_y
     }
   }
   tft.drawRGBBitmap(32, 72, disp, target_w, target_h); 
+}
+
+void display_image2(uint16_t* buf, int offset_x, int offset_y
+              , int target_w, int target_h, bool result) {
+  int n = 0; 
+  for (int y = 0; y < 40; ++y) {
+    for (int x = 0; x < 160; ++x) {
+      uint16_t value = buf[y*width + x];
+      uint16_t y_h = (value & 0xf000) >> 8;
+      uint16_t y_l = (value & 0x00f0) >> 4;
+      value = (y_h | y_l);       
+      uint16_t value6 = (value >> 2);
+      uint16_t value5 = (value >> 3);
+      disp[n] = (value5 << 11) | (value6 << 5) | value5;
+      if (result && (y >= (offset_y + box_sy)) && (y <= (offset_y + box_ey)) 
+        && (x >= (offset_x + box_sx)) && (x <= (offset_x + box_ex))) {
+        disp[n] = ILI9341_RED;
+      }
+      ++n;
+    }
+  }
+  tft.drawRGBBitmap(0, 0, disp, 160, 40); 
+
+  n = 0; 
+  for (int y = 40; y < 80; ++y) {
+    for (int x = 0; x < 160; ++x) {
+      uint16_t value = buf[y*width + x];
+      uint16_t y_h = (value & 0xf000) >> 8;
+      uint16_t y_l = (value & 0x00f0) >> 4;
+      value = (y_h | y_l);       
+      uint16_t value6 = (value >> 2);
+      uint16_t value5 = (value >> 3);
+      disp[n] = (value5 << 11) | (value6 << 5) | value5;
+      if (result && (y >= (offset_y + box_sy)) && (y <= (offset_y + box_ey)) 
+        && (x >= (offset_x + box_sx)) && (x <= (offset_x + box_ex))) {
+        disp[n] = ILI9341_RED;
+      }
+      ++n;
+    }
+  }
+  tft.drawRGBBitmap(0, 40, disp, 160, 40); 
+
+  n = 0; 
+  for (int y = 80; y < 120; ++y) {
+    for (int x = 0; x < 160; ++x) {
+      uint16_t value = buf[y*width + x];
+      uint16_t y_h = (value & 0xf000) >> 8;
+      uint16_t y_l = (value & 0x00f0) >> 4;
+      value = (y_h | y_l);       
+      uint16_t value6 = (value >> 2);
+      uint16_t value5 = (value >> 3);
+      disp[n] = (value5 << 11) | (value6 << 5) | value5;
+      if (result && (y >= (offset_y + box_sy)) && (y <= (offset_y + box_ey)) 
+        && (x >= (offset_x + box_sx)) && (x <= (offset_x + box_ex))) {
+        disp[n] = ILI9341_RED;
+      }
+      ++n;
+    }
+  }
+  tft.drawRGBBitmap(0, 80, disp, 160, 40); 
 }
 
 // YUV422からRGBへの変換関数(うまくいかないので保留)
