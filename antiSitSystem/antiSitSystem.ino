@@ -8,6 +8,8 @@
 
 #include <Camera.h>
 
+///ブランチテスト
+
 tflite::ErrorReporter* error_reporter = nullptr;
 const tflite::Model* model = nullptr;
 tflite::MicroInterpreter* interpreter = nullptr;
