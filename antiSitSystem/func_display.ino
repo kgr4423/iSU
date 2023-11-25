@@ -50,7 +50,7 @@ void display_image(uint16_t* buf, bool result) {
   for(int z=0; z < 12; ++z){
     int n = 0; 
     for (int y = z*10; y < z*10 + 10; ++y) {
-      for (int x = 0; x < 160; ++x) {
+      for (int x = 160; x > 0; --x) {
         // 撮影画像表示部分
         uint16_t value = buf[y*160 + x];
         uint16_t y_h = (value & 0xf000) >> 8;
