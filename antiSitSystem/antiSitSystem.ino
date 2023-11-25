@@ -8,8 +8,6 @@
 
 #include <Camera.h>
 
-///ブランチテスト
-
 tflite::ErrorReporter* error_reporter = nullptr;
 const tflite::Model* model = nullptr;
 tflite::MicroInterpreter* interpreter = nullptr;
@@ -21,12 +19,12 @@ constexpr int kTensorArenaSize = 100000;
 uint8_t tensor_arena[kTensorArenaSize];
 
 /* キャプチャ画像の切り取り・拡大縮小のパラメータ */
-const int offset_x = 32;
-const int offset_y = 12;
+const int offset_x = 25;
+const int offset_y = 5;
 const int width    = 160;
 const int height   = 120;
-const int target_w = 96;
-const int target_h = 96;
+const int target_w = 110;
+const int target_h = 110;
 const int pixfmt   = CAM_IMAGE_PIX_FMT_YUV422;
 
 const int beep_pin = 14; //音声出力ピンの設定

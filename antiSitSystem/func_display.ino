@@ -51,6 +51,7 @@ void display_image(uint16_t* buf, bool result) {
     int n = 0; 
     for (int y = z*10; y < z*10 + 10; ++y) {
       for (int x = 0; x < 160; ++x) {
+        // 撮影画像表示部分
         uint16_t value = buf[y*160 + x];
         uint16_t y_h = (value & 0xf000) >> 8;
         uint16_t y_l = (value & 0x00f0) >> 4;
@@ -62,15 +63,18 @@ void display_image(uint16_t* buf, bool result) {
         disp[320+n] = (value5 << 11) | (value6 << 5) | value5;
         disp[320+n+1] = (value5 << 11) | (value6 << 5) | value5;
         if (result && (10 <= y) && (y <= 20) && (110 <= x) && (x <= 130)){
+          //判定アイコン表示部分
           disp[n] = ILI9341_RED;
           disp[n+1] = ILI9341_RED;
           disp[320+n] = ILI9341_RED;
           disp[320+n+1] = ILI9341_RED;
         }
         if (x == 32 || x == 128 || y == 12 || y == 108){
+          // 撮影範囲表示部分
           disp[n] = ILI9341_RED;
         }
         if (mode == 3 && (x <= 5 || 155 <= x || y <= 5 || 115 <= y)){
+          // 警告枠表示部分
           disp[n] = ILI9341_RED;
           disp[n+1] = ILI9341_RED;
           disp[320+n] = ILI9341_RED;
