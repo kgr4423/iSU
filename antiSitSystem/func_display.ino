@@ -69,7 +69,7 @@ void display_image(uint16_t* buf, bool result) {
           disp[320+n] = ILI9341_RED;
           disp[320+n+1] = ILI9341_RED;
         }
-        if (x == 32 || x == 128 || y == 12 || y == 108){
+        if (x == offset_x || x == width - offset_x || y == offset_y || y == height - offset_y){
           // 撮影範囲表示部分
           disp[n] = ILI9341_RED;
         }
