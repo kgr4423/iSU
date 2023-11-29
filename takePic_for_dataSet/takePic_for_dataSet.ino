@@ -23,6 +23,10 @@ const int pixfmt   = CAM_IMAGE_PIX_FMT_YUV422;
 SDClass  theSD;
 int take_picture_count = 0;
 
+const int takePicButtonPin = 4;  // the number of the pushbutton pin
+const int endButtonPin = 7;  // the number of the pushbutton pin
+const int beep_pin = 14; //音声出力ピンの設定
+
 void setup()
 {  
   SerialPortSetup();
@@ -32,27 +36,48 @@ void setup()
   setup_display();
 
   writeLogFile("Setup done");
+
+  pinMode(takePicButtonPin, INPUT_PULLUP);  
+  pinMode(endButtonPin, INPUT_PULLUP);  
+  pinMode(LED0, OUTPUT);
 }
 
 void loop()
 {
-  //静止画像を撮影するまで1秒待つ
-  sleep(3);  
+  int takePicButtonState = digitalRead(takePicButtonPin);
+  int endButtonState = digitalRead(endButtonPin);
 
-  //このサンプルコードは開始から毎秒1枚画像を撮影できる
-  if (take_picture_count < TOTAL_PICTURE_COUNT)
-  {
-    takeAndSavePicture();
+  if (takePicButtonState == LOW) {
+   digitalWrite(LED0, HIGH);
+   takeAndSavePicture();
+   
+   tone(beep_pin, 440);
+   delay(100);
+   noTone(beep_pin);
+   delay(10);
+   tone(beep_pin, 440);
+   delay(100);
+   noTone(beep_pin);
+
+   sleep(1);
+  } else {
+   digitalWrite(LED0, LOW);
   }
-  else if (take_picture_count == TOTAL_PICTURE_COUNT)
-  {
-    Serial.println("End.");
-    theCamera.end();
 
-    writeLogFile("End");
+  if (endButtonState == LOW) {
+   digitalWrite(LED0, LOW);
+   theCamera.end();
 
-    SdUsbMscStart();
+   tone(beep_pin, 300);
+   delay(100);
+   noTone(beep_pin);
+   delay(10);
+   tone(beep_pin, 300);
+   delay(100);
+   noTone(beep_pin);
+
+   writeLogFile("End");
+   SdUsbMscStart();
   }
-  
-  take_picture_count++;
+
 }

@@ -1,15 +1,6 @@
 
 
 
-uint16_t* getImageData(CamImage img){
-    if (!img.isAvailable()) {
-        Serial.println("img is not available");
-        return;
-    }
-    uint16_t* buf = (uint16_t*)img.getImgBuff();
-
-    return buf;
-}
 
 //
 // エラーメッセージの出力
@@ -84,6 +75,8 @@ void CamCB(CamImage img)
     {
       Serial.println("Failed to get video stream image");
     }
+
+    
 }
 
 //
@@ -94,7 +87,7 @@ void CameraSetup(){
 
   //パラメータなしのbegin()は、次のことを意味する
   //バッファの数 = 1、30FPS、QVGA、YUV 4:2:2 フォーマット
-  err = theCamera.begin(1, CAM_VIDEO_FPS_15, width, height, pixfmt);
+  err = theCamera.begin(1, CAM_VIDEO_FPS_5, width, height, pixfmt);
   if (err != CAM_ERR_SUCCESS)
     {
       printError(err);
@@ -121,6 +114,17 @@ void CameraSetup(){
   }
 
   Serial.println("Camera Prepared");
+}
+
+
+uint16_t* getImageData(CamImage img){
+    if (!img.isAvailable()) {
+        Serial.println("img is not available");
+        return;
+    }
+    uint16_t* buf = (uint16_t*)img.getImgBuff();
+
+    return buf;
 }
 
 //
