@@ -8,7 +8,9 @@
 
 #define TIME_HEADER 'T' // Header tag for serial time sync message
 #define BAUDRATE                (115200)
-#define TOTAL_PICTURE_COUNT     (5)
+#define TOTAL_PICTURE_COUNT     (1)
+
+#define CAMIMAGE_SIZE 110
 
 const int offset_x = 25;
 const int offset_y = 5;

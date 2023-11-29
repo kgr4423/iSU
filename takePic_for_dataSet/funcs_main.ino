@@ -1,4 +1,6 @@
 
+
+
 uint16_t* getImageData(CamImage img){
     if (!img.isAvailable()) {
         Serial.println("img is not available");
@@ -102,13 +104,15 @@ void CameraSetup(){
   //次の場合ではQUADVGA（解像度）でJPEG（形式）となる
   // Serial.println("Set still picture format");
   err = theCamera.setStillPictureImageFormat(
-     CAM_IMGSIZE_QUADVGA_H,
-     CAM_IMGSIZE_QUADVGA_V,
+     CAMIMAGE_SIZE,
+     CAMIMAGE_SIZE,
      CAM_IMAGE_PIX_FMT_JPG);
   if (err != CAM_ERR_SUCCESS)
     {
       printError(err);
     }
+
+  err = theCamera.setColorEffect(CAM_COLOR_FX_BW);
 
   err = theCamera.startStreaming(true, CamCB);
   if (err != CAM_ERR_SUCCESS) {
@@ -125,11 +129,11 @@ void CameraSetup(){
 void SerialPortSetup(){
   //シリアル通信を開始し、ポートが開くのを待つ
   Serial.begin(BAUDRATE);
-  while (!Serial)
-    {
-      //シリアルポートが接続するのを待つ、Native USB Portのみ可
-      ;
-    }
+//   while (!Serial)
+//     {
+//       //シリアルポートが接続するのを待つ、Native USB Portのみ可
+//       ;
+//     }
   Serial.println("SerialPort Prepared");
 }
 
