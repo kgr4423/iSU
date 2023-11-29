@@ -1,3 +1,4 @@
+/* 推論処理関連*/
 #include "tensorflow/lite/micro/all_ops_resolver.h"
 #include "tensorflow/lite/micro/micro_error_reporter.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
@@ -5,8 +6,6 @@
 #include "tensorflow/lite/schema/schema_generated.h"
 
 #include "person_detect_model.h" //使用する推論モデル
-
-#include <Camera.h>
 
 tflite::ErrorReporter* error_reporter = nullptr;
 const tflite::Model* model = nullptr;
@@ -18,7 +17,8 @@ int inference_count = 0;
 constexpr int kTensorArenaSize = 100000;
 uint8_t tensor_arena[kTensorArenaSize];
 
-/* キャプチャ画像の切り取り・拡大縮小のパラメータ */
+/* カメラの撮影・撮影画像の表示関連 */
+#include <Camera.h>
 const int offset_x = 25;
 const int offset_y = 5;
 const int width    = 160;
@@ -27,8 +27,8 @@ const int target_w = 110;
 const int target_h = 110;
 const int pixfmt   = CAM_IMAGE_PIX_FMT_YUV422;
 
+/* その他 */
 const int beep_pin = 14; //音声出力ピンの設定
-
 int sitCount = 0;
 int last_mode = 4;
 int mode = 4;

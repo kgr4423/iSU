@@ -2,11 +2,11 @@ void setup_tensorflow(){
   tflite::InitializeTarget();
   memset(tensor_arena, 0, kTensorArenaSize*sizeof(uint8_t));
   
-  // Set up logging. 
+  // ロギング設定. 
   static tflite::MicroErrorReporter micro_error_reporter;
   error_reporter = &micro_error_reporter;
 
-  // Map the model into a usable data structure..
+  // モデルを使用可能なデータ構造にマッピングする
   model = tflite::GetModel(model_tflite);
   if (model->version() != TFLITE_SCHEMA_VERSION) {
     Serial.println("Model provided is schema version " 
@@ -17,15 +17,15 @@ void setup_tensorflow(){
   } else {
     Serial.println("Model version: " + String(model->version()));
   }
-  // This pulls in all the operation implementations we need.
+  // 必要なすべての操作の実装を引っ張ってくる
   static tflite::AllOpsResolver resolver;
   
-  // Build an interpreter to run the model with.
+  // モデルを実行するためのインタプリタを構築する
   static tflite::MicroInterpreter static_interpreter(
       model, resolver, tensor_arena, kTensorArenaSize, error_reporter);
   interpreter = &static_interpreter;
   
-  // Allocate memory from the tensor_arena for the model's tensors.
+  // モデルのテンソルのためにtensor_areaからメモリを確保する
   TfLiteStatus allocate_status = interpreter->AllocateTensors();
   if (allocate_status != kTfLiteOk) {
     Serial.println("AllocateTensors() failed");
@@ -56,40 +56,41 @@ void setup_tensorflow(){
 }
 
 void setImageForPersonDetection(uint16_t* buf){
-    int n = 0; 
-    for (int y = offset_y; y < offset_y + target_h; ++y) {
-        for (int x = offset_x; x < offset_x + target_w; ++x) {
-        /* YUV422データから輝度データ抽出 */
-        uint16_t value = buf[y*width + x];
-        uint16_t y_h = (value & 0xf000) >> 8;
-        uint16_t y_l = (value & 0x00f0) >> 4;
-        value = (y_h | y_l);  /* luminance data */
-        /* グレスケデータをTensorFlowの入力バッファにセット */
-        input->data.f[n++] = (float)(value)/255.0;
-        }
-    }
+  int n = 0; 
+  for (int y = offset_y; y < offset_y + target_h; ++y) {
+      for (int x = offset_x; x < offset_x + target_w; ++x) {
+      /* YUV422データから輝度データ抽出 */
+      uint16_t value = buf[y*width + x];
+      uint16_t y_h = (value & 0xf000) >> 8;
+      uint16_t y_l = (value & 0x00f0) >> 4;
+      value = (y_h | y_l);  /* luminance data */
+      /* グレスケデータをTensorFlowの入力バッファにセット */
+      input->data.f[n++] = (float)(value)/255.0;
+      }
+  }
 }
 
 bool detectPersonInImage(){
-    Serial.println("Do inference");
-    TfLiteStatus invoke_status = interpreter->Invoke();
-    if (invoke_status != kTfLiteOk) {
-        Serial.println("Invoke failed");
-        return;
-    }
+  //人の有無の推論処理を行い結果を返す
+  Serial.println("Do inference");
+  TfLiteStatus invoke_status = interpreter->Invoke();
+  if (invoke_status != kTfLiteOk) {
+      Serial.println("Invoke failed");
+      return;
+  }
 
-    person_score = output->data.uint8[1];
-    no_person_score = output->data.uint8[0];
-    Serial.print("Person = " + String(person_score) + ", ");
-    Serial.println("No_person = " + String(no_person_score));
+  person_score = output->data.uint8[1];
+  no_person_score = output->data.uint8[0];
+  Serial.print("Person = " + String(person_score) + ", ");
+  Serial.println("No_person = " + String(no_person_score));
 
-    bool result = false;
-    if ((person_score > no_person_score) && (person_score > 10)) {
-        digitalWrite(LED3, HIGH);
-        result = true;
-    } else {
-        digitalWrite(LED3, LOW);
-    }
+  bool result = false;
+  if ((person_score > no_person_score) && (person_score > 10)) {
+      digitalWrite(LED3, HIGH);
+      result = true;
+  } else {
+      digitalWrite(LED3, LOW);
+  }
 
-    return result;
+  return result;
 }
