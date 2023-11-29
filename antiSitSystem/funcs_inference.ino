@@ -1,5 +1,3 @@
-// setup()関数内の関数まとめ
-
 void setup_tensorflow(){
   tflite::InitializeTarget();
   memset(tensor_arena, 0, kTensorArenaSize*sizeof(uint8_t));
@@ -57,15 +55,41 @@ void setup_tensorflow(){
   digitalWrite(LED0, HIGH); 
 }
 
-void setup_camera(){
-  CamErr err = theCamera.begin(1, CAM_VIDEO_FPS_15, width, height, pixfmt);
-  if (err != CAM_ERR_SUCCESS) {
-    Serial.println("camera begin err: " + String(err));
-    return;
-  }
-  err = theCamera.startStreaming(true, CamCB);
-  if (err != CAM_ERR_SUCCESS) {
-    Serial.println("start streaming err: " + String(err));
-    return;
-  }
+void setImageForPersonDetection(uint16_t* buf){
+    int n = 0; 
+    for (int y = offset_y; y < offset_y + target_h; ++y) {
+        for (int x = offset_x; x < offset_x + target_w; ++x) {
+        /* YUV422データから輝度データ抽出 */
+        uint16_t value = buf[y*width + x];
+        uint16_t y_h = (value & 0xf000) >> 8;
+        uint16_t y_l = (value & 0x00f0) >> 4;
+        value = (y_h | y_l);  /* luminance data */
+        /* グレスケデータをTensorFlowの入力バッファにセット */
+        input->data.f[n++] = (float)(value)/255.0;
+        }
+    }
+}
+
+bool detectPersonInImage(){
+    Serial.println("Do inference");
+    TfLiteStatus invoke_status = interpreter->Invoke();
+    if (invoke_status != kTfLiteOk) {
+        Serial.println("Invoke failed");
+        return;
+    }
+
+    person_score = output->data.uint8[1];
+    no_person_score = output->data.uint8[0];
+    Serial.print("Person = " + String(person_score) + ", ");
+    Serial.println("No_person = " + String(no_person_score));
+
+    bool result = false;
+    if ((person_score > no_person_score) && (person_score > 10)) {
+        digitalWrite(LED3, HIGH);
+        result = true;
+    } else {
+        digitalWrite(LED3, LOW);
+    }
+
+    return result;
 }
