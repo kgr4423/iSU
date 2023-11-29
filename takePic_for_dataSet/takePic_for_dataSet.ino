@@ -10,6 +10,14 @@
 #define BAUDRATE                (115200)
 #define TOTAL_PICTURE_COUNT     (5)
 
+const int offset_x = 25;
+const int offset_y = 5;
+const int width    = 160;
+const int height   = 120;
+const int target_w = 110;
+const int target_h = 110;
+const int pixfmt   = CAM_IMAGE_PIX_FMT_YUV422;
+
 SDClass  theSD;
 int take_picture_count = 0;
 
@@ -19,6 +27,7 @@ void setup()
   SdSetup();
   RtcSetup();
   CameraSetup();
+  setup_display();
 
   writeLogFile("Setup done");
 }
@@ -30,18 +39,18 @@ void loop()
 
   //このサンプルコードは開始から毎秒1枚画像を撮影できる
   if (take_picture_count < TOTAL_PICTURE_COUNT)
-    {
-      takeAndSavePicture();
-    }
+  {
+    takeAndSavePicture();
+  }
   else if (take_picture_count == TOTAL_PICTURE_COUNT)
-    {
-      Serial.println("End.");
-      theCamera.end();
+  {
+    Serial.println("End.");
+    theCamera.end();
 
-      writeLogFile("End");
+    writeLogFile("End");
 
-      SdUsbMscStart();
-    }
+    SdUsbMscStart();
+  }
   
   take_picture_count++;
 }

@@ -8,7 +8,7 @@
 #define TFT_DC  9
 #define TFT_CS  10
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS ,TFT_DC ,TFT_RST);
-uint16_t disp[160*40];
+uint16_t disp[160*10*4];
 
 void setup_display() {
   tft.begin(); 
@@ -16,7 +16,7 @@ void setup_display() {
   tft.writeFillRect(0, 0, 320, 240, 0xFFFF);
 }
 
-void display_image(uint16_t* buf, bool result) {
+void display_image(uint16_t* buf) {
   
   for(int z=0; z < 12; ++z){
     int n = 0; 
