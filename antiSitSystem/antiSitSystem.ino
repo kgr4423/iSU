@@ -62,7 +62,7 @@ void CamCB(CamImage img) {
   display_image(buf, personDetected);
   /* 各種パラメータの表示 */
   displayText();
-    /* 警告処理 */
+  /* 警告処理 */
   alert();
 
   /* 処理時間の測定と表示 */

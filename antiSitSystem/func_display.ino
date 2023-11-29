@@ -10,12 +10,6 @@
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS ,TFT_DC ,TFT_RST);
 uint16_t disp[160*40];
 
-/* indicator box */
-int box_sx = 80;
-int box_ex = 90;
-int box_sy = 5;
-int box_ey = 15;
-
 void setup_display() {
   tft.begin(); 
   tft.setRotation(3);  
