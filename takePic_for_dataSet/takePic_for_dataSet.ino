@@ -48,9 +48,6 @@ void loop()
   int endButtonState = digitalRead(endButtonPin);
 
   if (takePicButtonState == LOW) {
-   digitalWrite(LED0, HIGH);
-   takeAndSavePicture();
-   
    tone(beep_pin, 440);
    delay(100);
    noTone(beep_pin);
@@ -58,7 +55,10 @@ void loop()
    tone(beep_pin, 440);
    delay(100);
    noTone(beep_pin);
-
+   
+   digitalWrite(LED0, HIGH);
+   takeAndSavePicture();
+   
    sleep(1);
   } else {
    digitalWrite(LED0, LOW);
