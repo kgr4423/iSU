@@ -41,7 +41,8 @@ int attention_width = 20;
 int danger_width = 30;
 int person_score;
 int no_person_score;
-int safe_time = 60;
+int safe_time_min = 60;
+double safe_time_sec = safe_time_min * 60;
 double time_from_start = 0;
 char* display_mode = "main"; 
 
@@ -113,14 +114,16 @@ void loop()
     int button_pin_7_state = digitalRead(button_pin_7);
 
     if (button_pin_5_state == LOW && display_mode == "setting"){
-        safe_time += 10;
+        safe_time_min += 10;
+        safe_time_sec = safe_time_min * 60;
         output_beep(beep_pin, 440, 50);
-        resetRect(0, 100, 224, 100, 0xFFFF);
+        resetRect(0, 70, 224, 170, 0xFFFF);
     }
     if (button_pin_6_state == LOW && display_mode == "setting"){
-        safe_time -= 10;
+        safe_time_min -= 10;
+        safe_time_sec = safe_time_min * 60;
         output_beep(beep_pin, 440, 50);
-        resetRect(0, 100, 224, 100, 0xFFFF);
+        resetRect(0, 70, 224, 170, 0xFFFF);
     }
     if (button_pin_7_state == LOW)
     {

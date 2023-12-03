@@ -58,18 +58,11 @@ void display_main(uint16_t *buf, bool result)
     tft.fillRect(0, 224, 224, 16, pixel_color);
     tft.fillRect(208, 0, 16, 240, pixel_color);
     //タイムバー
-    tft.fillRect(224, 0, 32, 80, ILI9341_GREEN);
-    tft.fillRect(224, 80, 32, 80, ILI9341_YELLOW);
-    tft.fillRect(224, 160, 32, 80, ILI9341_RED);
+    display_timebar();
     //ボタン表示
-    tft.drawRect(257, 40, 62, 45, ILI9341_BLACK);
-    tft.drawRect(257, 90, 62, 45, ILI9341_BLACK);
-    tft.drawRect(257, 140, 62, 45, ILI9341_BLACK);
-    tft.drawRect(257, 190, 62, 45, ILI9341_BLACK);
-    tft.setCursor(267, 210);
-    tft.setTextSize(1);
+    switch_box();
     tft.setTextColor(ILI9341_BLACK);
-    tft.print("SETTING");
+    setText("SETTING ", 267, 210, 1);
     //画像表示
     for (int y = 0; y < height; ++y)
     {
@@ -105,38 +98,60 @@ void display_main(uint16_t *buf, bool result)
 }
 
 void display_setting(){
-    tft.setTextSize(2);
+    resetRect(0, 70, 60, 50, 0xFFFF);
+    resetRect(180, 70, 30, 50, 0xFFFF);
     //タイムバー
-    tft.fillRect(224, 0, 32, 80, ILI9341_GREEN);
-    tft.fillRect(224, 80, 32, 80, ILI9341_YELLOW);
-    tft.fillRect(224, 160, 32, 80, ILI9341_RED);
+    display_timebar();
     //ボタン表示
+    switch_box();
     tft.setTextColor(ILI9341_BLACK);
-    tft.drawRect(257, 40, 62, 45, ILI9341_BLACK);
-    tft.drawRect(257, 90, 62, 45, ILI9341_BLACK);
-    tft.setCursor(270, 105);
-    tft.print(" > ");
-    tft.drawRect(257, 140, 62, 45, ILI9341_BLACK);
-    tft.setCursor(270, 155);
-    tft.print(" < ");
-    tft.drawRect(257, 190, 62, 45, ILI9341_BLACK);
-    tft.setCursor(270, 205);
-    tft.print("END ");
+    setText(" > ", 270, 105, 2);
+    setText(" < ", 270, 155, 2);
+    setText("END ", 270, 205, 2);
     //設定画面表示
+    setText("TIME SETTING", 5, 16, 3);
+    setText(" Set 'safe-time'.", 10, 50, 2);
     tft.setTextSize(3);
-    tft.setCursor(5, 16);
-    tft.print("TIME SETTING");
+    tft.setCursor(65, 90);
+    tft.print(safe_time_min);
+    setText("   min", 65, 90, 3);
+    setText("<", 30, 90, 3);
+    setText(">", 190, 90, 3);
+    //パラメータ表示
+    tft.fillRect(5, 140, 50, 26, ILI9341_GREEN);
+    tft.fillRect(5, 170, 50, 26, ILI9341_YELLOW);
+    tft.fillRect(5, 200, 50, 26, ILI9341_RED);
+    setText("safe", 65, 140, 2);
+    setText("atten", 65, 165, 2);
+    setText("-tion", 65, 185, 2);
+    setText("danger", 65, 205, 2);
+    setText("min", 180, 140, 2);
+    setText("min", 180, 175, 2);
+    setText("min", 180, 205, 2);
     tft.setTextSize(2);
-    tft.setCursor(10, 50);
-    tft.print(" Set 'safe-time'.");
-    tft.setTextSize(3);
-    tft.setCursor(65, 120);
-    tft.print(safe_time);
-    tft.setCursor(65, 120);
-    tft.print("   min");
-    tft.setCursor(30, 120);
-    tft.print("<");
-    tft.setCursor(190, 120);
-    tft.print(">");
+    tft.setCursor(145, 140);
+    tft.print(safe_time_min);
+    tft.setCursor(145, 175);
+    tft.print(safe_time_min);
+    tft.setCursor(145, 205);
+    tft.print(safe_time_min);
 
 }
+
+void display_timebar(){
+    tft.fillRect(224, 0, 32, 168, ILI9341_GREEN);
+    tft.fillRect(224, 168, 32, 48, ILI9341_YELLOW);
+    tft.fillRect(224, 216, 32, 24, ILI9341_RED);
+}
+void switch_box(){
+    tft.drawRect(257, 40, 62, 45, ILI9341_BLACK);
+    tft.drawRect(257, 90, 62, 45, ILI9341_BLACK);
+    tft.drawRect(257, 140, 62, 45, ILI9341_BLACK);
+    tft.drawRect(257, 190, 62, 45, ILI9341_BLACK);
+}
+void setText(char* text, uint16_t x, uint16_t y, uint8_t size){
+    tft.setTextSize(size);
+    tft.setCursor(x, y);
+    tft.print(text);
+}
+
