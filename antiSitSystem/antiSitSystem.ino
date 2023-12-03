@@ -30,13 +30,15 @@ const int pixfmt = CAM_IMAGE_PIX_FMT_YUV422;
 // その他
 const int beep_pin = 14; // 音声出力ピンの設定
 int sitCount = 0;
-int last_mode = 4;
-int mode = 4;
+int last_process_mode = 4;
+int process_mode = 4;
 int safe_width = 10;
 int attention_width = 20;
 int danger_width = 30;
 int person_score;
 int no_person_score;
+char* display_mode = "main"; 
+
 
 // カメラストリームのコールバック関数
 // カメラで画像がキャプチャされる度にこの関数が呼ばれる
@@ -45,27 +47,36 @@ void CamCB(CamImage img)
 {
     static uint32_t last_mills = 0;
 
-    // キャプチャ画像データの取得
-    uint16_t *buf = getImageData(img);
+    if(display_mode == "main"){
+        // キャプチャ画像データの取得
+        uint16_t *buf = getImageData(img);
 
-    // 人認識用に画像データを整形しTensorFlowの入力バッファにセット
-    setImageForPersonDetection(buf);
-    // 人の有無判定
-    bool personDetected = detectPersonInImage();
+        // 人認識用に画像データを整形しTensorFlowの入力バッファにセット
+        setImageForPersonDetection(buf);
+        // 人の有無判定
+        bool personDetected = detectPersonInImage();
 
-    // カウンタの更新
-    int delta = sitcountUpdater(personDetected);
-    sitCount = sitCount + delta;
-    // モードの更新
-    determineMode(safe_width, attention_width, danger_width);
+        // カウンタの更新
+        int delta = sitcountUpdater(personDetected);
+        sitCount = sitCount + delta;
+        // モードの更新
+        determineMode(safe_width, attention_width, danger_width);
 
-    // キャプチャ画像の表示
-    // display_main(buf, personDetected);
-    display_setting();
+        // キャプチャ画像の表示
+        display_main(buf, personDetected); 
+        // 警告処理
+        alert();
+    }else{
+        // キャプチャ画像の表示
+        display_setting();
+    }
+
+    
+
+    
     // 各種パラメータの表示
     // displayText();
-    // 警告処理
-    alert();
+    
 
     // 処理時間の測定と表示
     uint32_t current_mills = millis();

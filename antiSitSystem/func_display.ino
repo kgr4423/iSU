@@ -39,16 +39,16 @@ void displayText()
     tft.print(sitCount);
     tft.setCursor(175, 144);
     tft.print("  mode:");
-    tft.print(mode);
+    tft.print(process_mode);
 }
 
 void display_main(uint16_t *buf, bool result)
 {
     // 警告枠表示
     uint16_t pixel_color;
-    if(mode == 0 || mode == 1){
+    if(process_mode == 0 || process_mode == 1){
         pixel_color = ILI9341_BLACK;
-    }else if(mode == 2){
+    }else if(process_mode == 2){
         pixel_color = ILI9341_YELLOW;
     }else{
         pixel_color = ILI9341_RED;

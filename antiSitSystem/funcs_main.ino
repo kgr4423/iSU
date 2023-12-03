@@ -29,7 +29,7 @@ uint16_t *getImageData(CamImage img)
 int sitcountUpdater(bool personDetected)
 {
     int delta;
-    switch (mode)
+    switch (process_mode)
     {
     case 0: // 開始点、0より小さくならないようにしている
         if (personDetected)
@@ -93,37 +93,37 @@ int sitcountUpdater(bool personDetected)
 
 void determineMode(int safe_width, int attention_width, int danger_width)
 {
-    last_mode = mode;
+    last_process_mode = process_mode;
     if (sitCount == 0)
     {
         // start mode
-        mode = 0;
+        process_mode = 0;
     }
     else if (1 <= sitCount && sitCount <= safe_width)
     {
         // safe mode
-        mode = 1;
+        process_mode = 1;
     }
     else if (safe_width + 1 <= sitCount && sitCount <= attention_width)
     {
         // attention mode
-        mode = 2;
+        process_mode = 2;
     }
     else if (attention_width + 1 <= sitCount && sitCount <= danger_width)
     {
         // danger mode
-        mode = 3;
+        process_mode = 3;
     }
     else
     {
         // end mode
-        mode = 4;
+        process_mode = 4;
     }
 }
 
 void alert()
 {
-    if (mode == 0 && last_mode == 4)
+    if (process_mode == 0 && last_process_mode == 4)
     {
         // ﾌﾞﾌﾞ
         tone(beep_pin, 300);
@@ -134,7 +134,7 @@ void alert()
         delay(100);
         noTone(beep_pin);
     }
-    if (mode == 2 && last_mode == 1)
+    if (process_mode == 2 && last_process_mode == 1)
     {
         // ﾋﾟﾋﾟ
         tone(beep_pin, 440);
@@ -145,7 +145,7 @@ void alert()
         delay(100);
         noTone(beep_pin);
     }
-    if (mode == 3 && last_mode == 2)
+    if (process_mode == 3 && last_process_mode == 2)
     {
         // ﾋﾟｰﾋﾟｰﾋﾟｰ
         tone(beep_pin, 600);
