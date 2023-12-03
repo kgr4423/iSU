@@ -13,7 +13,7 @@ uint16_t disp[160 * 40];
 void setup_display()
 {
     tft.begin();
-    tft.setRotation(1);
+    tft.setRotation(3);
     tft.writeFillRect(0, 0, 320, 240, 0xFFFF);
 }
 
@@ -42,9 +42,9 @@ void displayText()
     tft.print(mode);
 }
 
-void display_image(uint16_t *buf, bool result)
+void display_main(uint16_t *buf, bool result)
 {
-    // 警告枠表示部分
+    // 警告枠表示
     uint16_t pixel_color;
     if(mode == 0 || mode == 1){
         pixel_color = ILI9341_BLACK;
@@ -61,8 +61,15 @@ void display_image(uint16_t *buf, bool result)
     tft.fillRect(224, 0, 32, 80, ILI9341_GREEN);
     tft.fillRect(224, 80, 32, 80, ILI9341_YELLOW);
     tft.fillRect(224, 160, 32, 80, ILI9341_RED);
-
-
+    //ボタン表示
+    tft.drawRect(257, 40, 62, 45, ILI9341_BLACK);
+    tft.drawRect(257, 90, 62, 45, ILI9341_BLACK);
+    tft.drawRect(257, 140, 62, 45, ILI9341_BLACK);
+    tft.drawRect(257, 190, 62, 45, ILI9341_BLACK);
+    tft.setCursor(267, 210);
+    tft.setTextColor(ILI9341_BLACK);
+    tft.print("SETTING");
+    //画像表示
     for (int y = 0; y < height; ++y)
     {
         for (int x = width; x > 0; --x)
@@ -93,4 +100,23 @@ void display_image(uint16_t *buf, bool result)
         // 画像の表示
         tft.drawRGBBitmap(offset_x, offset_y + y*2, disp, width*2, 2);
     }
+}
+
+void display_setting(){
+    //タイムバー
+    tft.fillRect(224, 0, 32, 80, ILI9341_GREEN);
+    tft.fillRect(224, 80, 32, 80, ILI9341_YELLOW);
+    tft.fillRect(224, 160, 32, 80, ILI9341_RED);
+    //ボタン表示
+    tft.setTextColor(ILI9341_BLACK);
+    tft.drawRect(257, 40, 62, 45, ILI9341_BLACK);
+    tft.drawRect(257, 90, 62, 45, ILI9341_BLACK);
+    tft.setCursor(267, 110);
+    tft.print("   UP   ");
+    tft.drawRect(257, 140, 62, 45, ILI9341_BLACK);
+    tft.setCursor(267, 160);
+    tft.print("  DOWN   ");
+    tft.drawRect(257, 190, 62, 45, ILI9341_BLACK);
+    tft.setCursor(267, 210);
+    tft.print("  END  ");
 }

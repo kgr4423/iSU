@@ -60,7 +60,8 @@ void CamCB(CamImage img)
     determineMode(safe_width, attention_width, danger_width);
 
     // キャプチャ画像の表示
-    display_image(buf, personDetected);
+    // display_main(buf, personDetected);
+    display_setting();
     // 各種パラメータの表示
     // displayText();
     // 警告処理
