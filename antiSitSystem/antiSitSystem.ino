@@ -62,7 +62,7 @@ void CamCB(CamImage img)
     // キャプチャ画像の表示
     display_image(buf, personDetected);
     // 各種パラメータの表示
-    displayText();
+    // displayText();
     // 警告処理
     alert();
 

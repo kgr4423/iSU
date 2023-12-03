@@ -13,7 +13,7 @@ uint16_t disp[160 * 40];
 void setup_display()
 {
     tft.begin();
-    tft.setRotation(3);
+    tft.setRotation(1);
     tft.writeFillRect(0, 0, 320, 240, 0xFFFF);
 }
 
@@ -57,6 +57,11 @@ void display_image(uint16_t *buf, bool result)
     tft.fillRect(0, 0, 16, 240, pixel_color);
     tft.fillRect(0, 224, 224, 16, pixel_color);
     tft.fillRect(208, 0, 16, 240, pixel_color);
+    //タイムバー
+    tft.fillRect(224, 0, 32, 80, ILI9341_GREEN);
+    tft.fillRect(224, 80, 32, 80, ILI9341_YELLOW);
+    tft.fillRect(224, 160, 32, 80, ILI9341_RED);
+
 
     for (int y = 0; y < height; ++y)
     {
