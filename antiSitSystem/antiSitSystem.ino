@@ -43,44 +43,44 @@ int no_person_score;
 /* 人認識の推論もこの関数内で行われる */
 void CamCB(CamImage img)
 {
-  static uint32_t last_mills = 0;
+    static uint32_t last_mills = 0;
 
-  /* キャプチャ画像データの取得 */
-  uint16_t *buf = getImageData(img);
+    /* キャプチャ画像データの取得 */
+    uint16_t *buf = getImageData(img);
 
-  /* 人認識用に画像データを整形しTensorFlowの入力バッファにセット */
-  setImageForPersonDetection(buf);
-  /* 人の有無判定 */
-  bool personDetected = detectPersonInImage();
+    /* 人認識用に画像データを整形しTensorFlowの入力バッファにセット */
+    setImageForPersonDetection(buf);
+    /* 人の有無判定 */
+    bool personDetected = detectPersonInImage();
 
-  /* カウンタの更新 */
-  int delta = sitcountUpdater(personDetected);
-  sitCount = sitCount + delta;
-  /* モードの更新 */
-  determineMode(safe_width, attention_width, danger_width);
+    /* カウンタの更新 */
+    int delta = sitcountUpdater(personDetected);
+    sitCount = sitCount + delta;
+    /* モードの更新 */
+    determineMode(safe_width, attention_width, danger_width);
 
-  /* キャプチャ画像の表示 */
-  display_image(buf, personDetected);
-  /* 各種パラメータの表示 */
-  displayText();
-  /* 警告処理 */
-  alert();
+    /* キャプチャ画像の表示 */
+    display_image(buf, personDetected);
+    /* 各種パラメータの表示 */
+    displayText();
+    /* 警告処理 */
+    alert();
 
-  /* 処理時間の測定と表示 */
-  uint32_t current_mills = millis();
-  uint32_t duration = current_mills - last_mills;
-  Serial.println("duration = " + String(duration));
-  last_mills = current_mills;
+    /* 処理時間の測定と表示 */
+    uint32_t current_mills = millis();
+    uint32_t duration = current_mills - last_mills;
+    Serial.println("duration = " + String(duration));
+    last_mills = current_mills;
 }
 
 void setup()
 {
-  Serial.begin(115200);
-  pinMode(beep_pin, OUTPUT);
+    Serial.begin(115200);
+    pinMode(beep_pin, OUTPUT);
 
-  setup_display();
-  setup_tensorflow();
-  setup_camera();
+    setup_display();
+    setup_tensorflow();
+    setup_camera();
 }
 
 void loop()
