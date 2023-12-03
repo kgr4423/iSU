@@ -28,6 +28,10 @@ const int height = 104;
 const int pixfmt = CAM_IMAGE_PIX_FMT_YUV422;
 
 // その他
+const int button_pin_4 = 4;
+const int button_pin_5 = 5;
+const int button_pin_6 = 6;
+const int button_pin_7 = 7;
 const int beep_pin = 14; // 音声出力ピンの設定
 int sitCount = 0;
 int last_process_mode = 4;
@@ -37,6 +41,7 @@ int attention_width = 20;
 int danger_width = 30;
 int person_score;
 int no_person_score;
+int safe_time = 60;
 char* display_mode = "main"; 
 
 
@@ -88,6 +93,10 @@ void CamCB(CamImage img)
 void setup()
 {
     Serial.begin(115200);
+    pinMode(button_pin_4, INPUT_PULLUP);
+    pinMode(button_pin_5, INPUT_PULLUP);
+    pinMode(button_pin_6, INPUT_PULLUP);
+    pinMode(button_pin_7, INPUT_PULLUP);
     pinMode(beep_pin, OUTPUT);
 
     setup_display();
@@ -97,4 +106,36 @@ void setup()
 
 void loop()
 {
+    int button_pin_4_state = digitalRead(button_pin_4);
+    int button_pin_5_state = digitalRead(button_pin_5);
+    int button_pin_6_state = digitalRead(button_pin_6);
+    int button_pin_7_state = digitalRead(button_pin_7);
+
+    if (button_pin_5_state == LOW && display_mode == "setting"){
+        safe_time += 10;
+        output_beep(beep_pin, 440, 50);
+        resetRect(0, 100, 224, 100, 0xFFFF);
+    }
+    if (button_pin_6_state == LOW && display_mode == "setting"){
+        safe_time -= 10;
+        output_beep(beep_pin, 440, 50);
+        resetRect(0, 100, 224, 100, 0xFFFF);
+    }
+    if (button_pin_7_state == LOW)
+    {
+        //スイッチ押したときの処理
+        if(display_mode == "main"){
+            display_mode = "setting";
+        }else{
+            display_mode = "main";
+        }
+
+        output_beep(beep_pin, 440, 100);
+        delay(10);
+        output_beep(beep_pin, 440, 100);
+
+        resetRect(0, 0, 320, 240, 0xFFFF);
+    }
+    
+    
 }

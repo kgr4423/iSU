@@ -17,9 +17,9 @@ void setup_display()
     tft.writeFillRect(0, 0, 320, 240, 0xFFFF);
 }
 
-void resetTextArea()
+void resetRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t c)
 {
-    tft.writeFillRect(160, 0, 170, 240, 0xFFFF);
+    tft.fillRect(x, y, w, h, c);
 }
 
 void displayText()
@@ -67,6 +67,7 @@ void display_main(uint16_t *buf, bool result)
     tft.drawRect(257, 140, 62, 45, ILI9341_BLACK);
     tft.drawRect(257, 190, 62, 45, ILI9341_BLACK);
     tft.setCursor(267, 210);
+    tft.setTextSize(1);
     tft.setTextColor(ILI9341_BLACK);
     tft.print("SETTING");
     //画像表示
@@ -129,7 +130,9 @@ void display_setting(){
     tft.print(" Set 'safe-time'.");
     tft.setTextSize(3);
     tft.setCursor(65, 120);
-    tft.print("60 min");
+    tft.print(safe_time);
+    tft.setCursor(65, 120);
+    tft.print("   min");
     tft.setCursor(30, 120);
     tft.print("<");
     tft.setCursor(190, 120);

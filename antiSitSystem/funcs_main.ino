@@ -161,3 +161,9 @@ void alert()
         noTone(beep_pin);
     }
 }
+
+void output_beep(uint8_t pin, unsigned int freq, unsigned long delay_time){
+    tone(pin, freq);
+    delay(delay_time);
+    noTone(pin);
+}
