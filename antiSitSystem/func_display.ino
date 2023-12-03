@@ -44,56 +44,48 @@ void displayText()
 
 void display_image(uint16_t *buf, bool result)
 {
+    // 警告枠表示部分
+    uint16_t pixel_color;
+    if(mode == 0 || mode == 1){
+        pixel_color = ILI9341_BLACK;
+    }else if(mode == 2){
+        pixel_color = ILI9341_YELLOW;
+    }else{
+        pixel_color = ILI9341_RED;
+    }
+    tft.fillRect(0, 0, 224, 16, pixel_color);
+    tft.fillRect(0, 0, 16, 240, pixel_color);
+    tft.fillRect(0, 224, 224, 16, pixel_color);
+    tft.fillRect(208, 0, 16, 240, pixel_color);
 
-    for (int z = 0; z < height/10; ++z)
+    for (int y = 0; y < height; ++y)
     {
-        int n = 0;
-        for (int y = z * 10; y < z * 10 + 10; ++y)
+        for (int x = width; x > 0; --x)
         {
-            for (int x = width; x > 0; --x)
+            // YUV422形式の画像データから輝度成分を抽出しRGB565へ変換
+            uint16_t value = buf[y*width + x];
+            uint16_t y_h = (value & 0xf000) >> 8;
+            uint16_t y_l = (value & 0x00f0) >> 4;
+            value = (y_h | y_l);
+            uint16_t value6 = (value >> 2);
+            uint16_t value5 = (value >> 3);
+            value = (value5 << 11) | (value6 << 5) | value5;
+            //ピクセル
+            int LU = x*2;
+            int RU = x*2 + 1;
+            int LD = x*2     + width*2;
+            int RD = x*2 + 1 + width*2;
+            // 撮影画像表示部分
+            disp[LU] = value; disp[RU] = value;
+            disp[LD] = value; disp[RD] = value;
+            if (result && (10 <= y) && (y <= 20) && (110 <= x) && (x <= 130))
             {
-                // YUV422形式の画像データから輝度成分を抽出しRGB565へ変換
-                uint16_t value = buf[y * width + x];
-                uint16_t y_h = (value & 0xf000) >> 8;
-                uint16_t y_l = (value & 0x00f0) >> 4;
-                value = (y_h | y_l);
-                uint16_t value6 = (value >> 2);
-                uint16_t value5 = (value >> 3);
-                // 撮影画像表示部分
-                disp[n] = (value5 << 11) | (value6 << 5) | value5;
-                disp[n + 1] = (value5 << 11) | (value6 << 5) | value5;
-                disp[width*2 + n] = (value5 << 11) | (value6 << 5) | value5;
-                disp[width*2 + n + 1] = (value5 << 11) | (value6 << 5) | value5;
-                if (result && (10 <= y) && (y <= 20) && (110 <= x) && (x <= 130))
-                {
-                    // 判定アイコン表示部分
-                    disp[n] = ILI9341_RED;
-                    disp[n + 1] = ILI9341_RED;
-                    disp[width*2 + n] = ILI9341_RED;
-                    disp[width*2 + n + 1] = ILI9341_RED;
-                }
-                if (x == offset_x || x == width - offset_x || y == offset_y || y == height - offset_y)
-                {
-                    // 撮影範囲表示部分
-                    disp[n] = ILI9341_RED;
-                }
-                if (mode == 3 && (x <= 5 || 155 <= x || y <= 5 || 115 <= y))
-                {
-                    // 警告枠表示部分
-                    disp[n] = ILI9341_RED;
-                    disp[n + 1] = ILI9341_RED;
-                    disp[width*2 + n] = ILI9341_RED;
-                    disp[width*2 + n + 1] = ILI9341_RED;
-                }
-                // 画像データの読み出し番号更新
-                n = n + 2;
-                if (n % (width*2) == 0)
-                {
-                    n = n + width*2;
-                }
+                // 判定アイコン表示部分
+                disp[LU] = ILI9341_RED; disp[RU] = ILI9341_RED;
+                disp[LD] = ILI9341_RED; disp[RD] = ILI9341_RED;
             }
         }
         // 画像の表示
-        tft.drawRGBBitmap(offset_x, z * 20 + offset_y, disp, width*2, 20);
+        tft.drawRGBBitmap(offset_x, offset_y + y*2, disp, width*2, 2);
     }
 }

@@ -21,10 +21,10 @@ uint8_t tensor_arena[kTensorArenaSize];
 #include <Camera.h>
 const int offset_x = 16;
 const int offset_y = 16;
-const int width = 110;
-const int height = 110;
-const int target_w = 110;
-const int target_h = 110;
+const int width = 96;
+const int height = 104;
+// const int target_w = 110;
+// const int target_h = 110;
 const int pixfmt = CAM_IMAGE_PIX_FMT_YUV422;
 
 // その他

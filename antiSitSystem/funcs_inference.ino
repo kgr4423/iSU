@@ -64,9 +64,9 @@ void setup_tensorflow()
 void setImageForPersonDetection(uint16_t *buf)
 {
     int n = 0;
-    for (int y = offset_y; y < offset_y + target_h; ++y)
+    for (int y = 0; y < height; ++y)
     {
-        for (int x = offset_x; x < offset_x + target_w; ++x)
+        for (int x = 0; x < width; ++x)
         {
             /* YUV422データから輝度データ抽出 */
             uint16_t value = buf[y * width + x];
