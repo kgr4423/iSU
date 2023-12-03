@@ -103,6 +103,7 @@ void display_main(uint16_t *buf, bool result)
 }
 
 void display_setting(){
+    tft.setTextSize(2);
     //タイムバー
     tft.fillRect(224, 0, 32, 80, ILI9341_GREEN);
     tft.fillRect(224, 80, 32, 80, ILI9341_YELLOW);
@@ -111,12 +112,27 @@ void display_setting(){
     tft.setTextColor(ILI9341_BLACK);
     tft.drawRect(257, 40, 62, 45, ILI9341_BLACK);
     tft.drawRect(257, 90, 62, 45, ILI9341_BLACK);
-    tft.setCursor(267, 110);
-    tft.print("   UP   ");
+    tft.setCursor(270, 105);
+    tft.print(" > ");
     tft.drawRect(257, 140, 62, 45, ILI9341_BLACK);
-    tft.setCursor(267, 160);
-    tft.print("  DOWN   ");
+    tft.setCursor(270, 155);
+    tft.print(" < ");
     tft.drawRect(257, 190, 62, 45, ILI9341_BLACK);
-    tft.setCursor(267, 210);
-    tft.print("  END  ");
+    tft.setCursor(270, 205);
+    tft.print("END ");
+    //設定画面表示
+    tft.setTextSize(3);
+    tft.setCursor(5, 16);
+    tft.print("TIME SETTING");
+    tft.setTextSize(2);
+    tft.setCursor(10, 50);
+    tft.print(" Set 'safe-time'.");
+    tft.setTextSize(3);
+    tft.setCursor(65, 120);
+    tft.print("60 min");
+    tft.setCursor(30, 120);
+    tft.print("<");
+    tft.setCursor(190, 120);
+    tft.print(">");
+
 }
