@@ -42,6 +42,7 @@ int danger_width = 30;
 int person_score;
 int no_person_score;
 int safe_time = 60;
+double time_from_start = 0;
 char* display_mode = "main"; 
 
 
@@ -76,18 +77,18 @@ void CamCB(CamImage img)
         display_setting();
     }
 
-    
-
-    
     // 各種パラメータの表示
     // displayText();
     
-
     // 処理時間の測定と表示
     uint32_t current_mills = millis();
     uint32_t duration = current_mills - last_mills;
     Serial.println("duration = " + String(duration));
     last_mills = current_mills;
+    if(display_mode == "main"){
+        time_from_start += (double)duration/1000;
+        Serial.println("time = " + String(time_from_start));
+    }
 }
 
 void setup()

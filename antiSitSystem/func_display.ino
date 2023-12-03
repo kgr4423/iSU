@@ -14,7 +14,7 @@ void setup_display()
 {
     tft.begin();
     tft.setRotation(3);
-    tft.writeFillRect(0, 0, 320, 240, 0xFFFF);
+    tft.fillRect(0, 0, 320, 240, 0xFFFF);
 }
 
 void resetRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t c)
@@ -73,7 +73,7 @@ void display_main(uint16_t *buf, bool result)
     //画像表示
     for (int y = 0; y < height; ++y)
     {
-        for (int x = width; x > 0; --x)
+        for (int x = 0; x < width; ++x)
         {
             // YUV422形式の画像データから輝度成分を抽出しRGB565へ変換
             uint16_t value = buf[y*width + x];
@@ -84,14 +84,15 @@ void display_main(uint16_t *buf, bool result)
             uint16_t value5 = (value >> 3);
             value = (value5 << 11) | (value6 << 5) | value5;
             //ピクセル
-            int LU = x*2;
-            int RU = x*2 + 1;
-            int LD = x*2     + width*2;
-            int RD = x*2 + 1 + width*2;
+            //左右反転のため「width*2 - 」としている
+            int LU = width*2 - x*2;
+            int RU = width*2 - x*2 + 1;
+            int LD = width*2 - x*2     + width*2;
+            int RD = width*2 - x*2 + 1 + width*2;
             // 撮影画像表示部分
             disp[LU] = value; disp[RU] = value;
             disp[LD] = value; disp[RD] = value;
-            if (result && (10 <= y) && (y <= 20) && (110 <= x) && (x <= 130))
+            if (result && (10 <= y) && (y <= 20) && (10 <= x) && (x <= 20))
             {
                 // 判定アイコン表示部分
                 disp[LU] = ILI9341_RED; disp[RU] = ILI9341_RED;
