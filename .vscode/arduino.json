@@ -1,7 +1,7 @@
 {
     "configuration": "Core=Main,Memory=1152,Debug=Disabled,UploadSpeed=460800",
     "board": "SPRESENSE_tensorflow:spresense:spresense",
-    "sketch": "takePic_for_dataSet\\takePic_for_dataSet.ino",
+    "sketch": "antiSitSystem\\antiSitSystem.ino",
     "port": "COM4",
     "programmer": "sfutools"
 }
