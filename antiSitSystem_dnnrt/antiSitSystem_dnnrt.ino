@@ -64,13 +64,7 @@ void CamCB(CamImage img)
 
     // 推論処理と人の有無判別
     DNNVariable output = detectPersonInImage(CamImage img);
-    int index = output.maxIndex();
-    bool personDetected;
-    if(index == 0){
-        personDetected = false;
-    }else{
-        personDetected = true;
-    }
+    
 
     // カウンタの更新
     double d = sitcountUpdater(personDetected);
@@ -100,7 +94,7 @@ void CamCB(CamImage img)
 
 
 // 推論処理
-DNNVariable detectPersonInImage(CamImage img){
+bool detectPersonInImage(CamImage img){
     //YUVをRGBに変更
     img.convertPixFormat(CAM_IMAGE_PIX_FMT_RGB565);
     uint16_t *tmp = (uint16_t *)img.getImgBuff();
@@ -114,8 +108,16 @@ DNNVariable detectPersonInImage(CamImage img){
     dnnrt.inputVariable(input, 0);
     dnnrt.forward();
     DNNVariable output = dnnrt.outputVariable(0);
+    int index = output.maxIndex();
 
-    return output;
+    bool personDetected;
+    if(index == 0){
+        personDetected = false;
+    }else{
+        personDetected = true;
+    }
+
+    return personDetected;
 }
 
 
@@ -210,23 +212,12 @@ void display_main(uint16_t *buf, bool result)
     {
         for (int x = 0; x < width; ++x)
         {
-            // YUV422形式の画像データから輝度成分を抽出しRGB565へ変換
-            uint16_t value = buf[y*width + x];
-            uint16_t y_h = (value & 0xf000) >> 8;
-            uint16_t y_l = (value & 0x00f0) >> 4;
-            value = (y_h | y_l);
-            uint16_t value6 = (value >> 2);
-            uint16_t value5 = (value >> 3);
-            value = (value5 << 11) | (value6 << 5) | value5;
             //ピクセル
             //左右反転のため「width*2 - 」としている
             int LU = width*2 - x*2;
             int RU = width*2 - x*2 + 1;
             int LD = width*2 - x*2     + width*2;
             int RD = width*2 - x*2 + 1 + width*2;
-            // 撮影画像表示部分
-            disp[LU] = value; disp[RU] = value;
-            disp[LD] = value; disp[RD] = value;
             if (result && (10 <= y) && (y <= 20) && (10 <= x) && (x <= 20))
             {
                 // 判定アイコン表示部分
@@ -234,8 +225,6 @@ void display_main(uint16_t *buf, bool result)
                 disp[LD] = ILI9341_RED; disp[RD] = ILI9341_RED;
             }
         }
-        // 画像の表示
-        tft.drawRGBBitmap(offset_x, offset_y + y*2, disp, width*2, 2);
     }
 }
 
