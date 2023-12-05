@@ -1,15 +1,3 @@
-// LCDモニタ関連の関数
-
-#include "Adafruit_GFX.h"
-#include "Adafruit_ILI9341.h"
-#include <cstdint>
-
-#define TFT_RST 8
-#define TFT_DC 9
-#define TFT_CS 10
-Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
-uint16_t disp[160 * 40];
-
 void setup_display()
 {
     tft.begin();

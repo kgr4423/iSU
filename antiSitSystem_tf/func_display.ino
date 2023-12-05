@@ -53,9 +53,9 @@ void display_main(uint16_t *buf, bool result)
     }else{
         pixel_color = ILI9341_RED;
     }
-    tft.fillRect(0, 0, 224, 16, pixel_color);
+    tft.fillRect(0, 0, 208, 24, pixel_color);
     tft.fillRect(0, 0, 16, 240, pixel_color);
-    tft.fillRect(0, 224, 224, 16, pixel_color);
+    tft.fillRect(0, 216, 224, 24, pixel_color);
     tft.fillRect(208, 0, 16, 240, pixel_color);
     //タイムバー
     display_timebar();
