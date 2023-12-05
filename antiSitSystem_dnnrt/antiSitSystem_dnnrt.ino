@@ -64,34 +64,13 @@ void CamCB(CamImage img)
         return;
     }
 
-    //撮影画像のサイズ縮小
-    CamImage small;
-    CamErr err = img.clipAndResizeImageByHW(small, CAM_CLIP_X, CAM_CLIP_Y, CAM_CLIP_X + CAM_CLIP_W - 1, CAM_CLIP_Y + CAM_CLIP_H - 1, DNN_IMG_W, DNN_IMG_H);
-    if (!small.isAvailable())
-    {
-        putStringOnLcd("Clip and Reize Error:" + String(err), ILI9341_RED);
-        return;
-    }
 
-    //YUVをRGBに変更
-    small.convertPixFormat(CAM_IMAGE_PIX_FMT_RGB565);
-    uint16_t *tmp = (uint16_t *)small.getImgBuff();
+    DNNVariable output = detectPersonInImage(CamImage img);
 
-    //RGBのうちGを抽出
-    float *dnnbuf = input.data();
-    for (int n = 0; n < DNN_IMG_H * DNN_IMG_W; ++n)
-    {
-        dnnbuf[n] = (float)((tmp[n] & 0x07E0) >> 5);
-    }
-
-    // 推論処理
-    String gStrResult = "?";
-    dnnrt.inputVariable(input, 0);
-    dnnrt.forward();
-    DNNVariable output = dnnrt.outputVariable(0);
     int index = output.maxIndex();
 
     // 結果出力
+    String gStrResult = "?";
     if (index < 10)
     {
         gStrResult = String(label[index]) + String(":") + String(output[index]);
@@ -106,6 +85,32 @@ void CamCB(CamImage img)
     img.convertPixFormat(CAM_IMAGE_PIX_FMT_RGB565);
     uint16_t *imgBuf = (uint16_t *)img.getImgBuff();
     tft.drawRGBBitmap(0, 0, (uint16_t *)img.getImgBuff(), 320, 224);
+}
+
+DNNVariable detectPersonInImage(CamImage img){
+    //撮影画像のサイズ縮小
+    CamImage small;
+    CamErr err = img.clipAndResizeImageByHW(small, CAM_CLIP_X, CAM_CLIP_Y, CAM_CLIP_X + CAM_CLIP_W - 1, CAM_CLIP_Y + CAM_CLIP_H - 1, DNN_IMG_W, DNN_IMG_H);
+    if (!small.isAvailable())
+    {
+        Serial.println("Clip and Reize Error:" + String(err), ILI9341_RED);
+        return;
+    }
+    //YUVをRGBに変更
+    small.convertPixFormat(CAM_IMAGE_PIX_FMT_RGB565);
+    uint16_t *tmp = (uint16_t *)small.getImgBuff();
+    //RGBのうちGを抽出
+    float *dnnbuf = input.data();
+    for (int n = 0; n < DNN_IMG_H * DNN_IMG_W; ++n)
+    {
+        dnnbuf[n] = (float)((tmp[n] & 0x07E0) >> 5);
+    }
+    // 推論処理
+    dnnrt.inputVariable(input, 0);
+    dnnrt.forward();
+    DNNVariable output = dnnrt.outputVariable(0);
+
+    return output;
 }
 
 void setup()
