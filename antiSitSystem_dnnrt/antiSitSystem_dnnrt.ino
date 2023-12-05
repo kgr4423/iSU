@@ -27,12 +27,13 @@ const int height = 96;
 // const int target_h = 110;
 const int pixfmt = CAM_IMAGE_PIX_FMT_YUV422;
 
-// その他
+// 出力ピン
 const int button_pin_4 = 4;
 const int button_pin_5 = 5;
 const int button_pin_6 = 6;
 const int button_pin_7 = 7;
 const int beep_pin = 14; // 音声出力ピンの設定
+
 double sitCount = 0.0;
 int last_process_mode = 4;
 int process_mode = 4;
