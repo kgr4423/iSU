@@ -62,7 +62,8 @@ void display_main(uint16_t *buf, bool result)
     //ボタン表示
     switch_box();
     tft.setTextColor(ILI9341_BLACK);
-    setText("SETTING ", 267, 210, 1);
+    setText("SETT ", 267, 198, 2);
+    setText("-ING ", 267, 213, 2);
     //画像表示
     for (int y = 0; y < height; ++y)
     {
@@ -128,20 +129,28 @@ void display_setting(){
     setText("min", 180, 140, 2);
     setText("min", 180, 175, 2);
     setText("min", 180, 205, 2);
+
+    int attention_time_min = (int)(safe_time_min * 0.25 / 0.7);
+    int danger_time_min = (int)(safe_time_min * 0.05 / 0.7);
     tft.setTextSize(2);
     tft.setCursor(145, 140);
     tft.print(safe_time_min);
     tft.setCursor(145, 175);
-    tft.print(safe_time_min);
+    tft.print(attention_time_min);
     tft.setCursor(145, 205);
-    tft.print(safe_time_min);
+    tft.print(danger_time_min);
 
 }
 
 void display_timebar(){
+    int all_time_sec = safe_time_sec / 0.7;
+    uint16_t now_icon_pos = 240 * sitCount / all_time_sec;
     tft.fillRect(224, 0, 32, 168, ILI9341_GREEN);
-    tft.fillRect(224, 168, 32, 48, ILI9341_YELLOW);
-    tft.fillRect(224, 216, 32, 24, ILI9341_RED);
+    tft.fillRect(224, 168, 32, 60, ILI9341_YELLOW);
+    tft.fillRect(224, 228, 32, 12, ILI9341_RED);
+    tft.setTextSize(1);
+    tft.setCursor(224, now_icon_pos);
+    tft.print(" now");
 }
 void switch_box(){
     tft.drawRect(257, 40, 62, 45, ILI9341_BLACK);

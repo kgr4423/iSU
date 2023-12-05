@@ -33,7 +33,7 @@ const int button_pin_5 = 5;
 const int button_pin_6 = 6;
 const int button_pin_7 = 7;
 const int beep_pin = 14; // 音声出力ピンの設定
-int sitCount = 0;
+double sitCount = 0.0;
 int last_process_mode = 4;
 int process_mode = 4;
 int safe_width = 10;
@@ -41,10 +41,11 @@ int attention_width = 20;
 int danger_width = 30;
 int person_score;
 int no_person_score;
-int safe_time_min = 60;
-double safe_time_sec = safe_time_min * 60;
+int safe_time_min = 1;
+double safe_time_sec = safe_time_min * 60.0;
 double time_from_start = 0;
 char* display_mode = "main"; 
+double duration;
 
 
 // カメラストリームのコールバック関数
@@ -64,8 +65,8 @@ void CamCB(CamImage img)
         bool personDetected = detectPersonInImage();
 
         // カウンタの更新
-        int delta = sitcountUpdater(personDetected);
-        sitCount = sitCount + delta;
+        double d = sitcountUpdater(personDetected);
+        sitCount += d;
         // モードの更新
         determineMode(safe_width, attention_width, danger_width);
 
@@ -83,11 +84,11 @@ void CamCB(CamImage img)
     
     // 処理時間の測定と表示
     uint32_t current_mills = millis();
-    uint32_t duration = current_mills - last_mills;
+    duration = (double)(current_mills - last_mills) / 1000;
     Serial.println("duration = " + String(duration));
     last_mills = current_mills;
     if(display_mode == "main"){
-        time_from_start += (double)duration/1000;
+        time_from_start += duration;
         Serial.println("time = " + String(time_from_start));
     }
 }
@@ -114,14 +115,14 @@ void loop()
     int button_pin_7_state = digitalRead(button_pin_7);
 
     if (button_pin_5_state == LOW && display_mode == "setting"){
-        safe_time_min += 10;
-        safe_time_sec = safe_time_min * 60;
+        safe_time_min += 1;
+        safe_time_sec = safe_time_min * 60.0;
         output_beep(beep_pin, 440, 50);
         resetRect(0, 70, 224, 170, 0xFFFF);
     }
     if (button_pin_6_state == LOW && display_mode == "setting"){
-        safe_time_min -= 10;
-        safe_time_sec = safe_time_min * 60;
+        safe_time_min -= 1;
+        safe_time_sec = safe_time_min * 60.0;
         output_beep(beep_pin, 440, 50);
         resetRect(0, 70, 224, 170, 0xFFFF);
     }
