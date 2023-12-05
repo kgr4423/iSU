@@ -31,18 +31,16 @@ SDClass theSD;
 #define TFT_DC 9
 #define TFT_CS 10
 
-// 推論画像サイズ
-#define DNN_IMG_W 28
-#define DNN_IMG_H 28
 // 撮影画像サイズ
-#define CAM_IMG_W 320
-#define CAM_IMG_H 240
-// 目標範囲の左上角座標
-#define CAM_CLIP_X 104
-#define CAM_CLIP_Y 0
-// 目標範囲の幅と高さ
-#define CAM_CLIP_W 112
-#define CAM_CLIP_H 224
+#define CAM_IMG_W 96
+#define CAM_IMG_H 96
+// 推論画像サイズ
+#define DNN_IMG_W 96
+#define DNN_IMG_H 96
+// 推論画像の左上角座標
+#define CAM_CLIP_X 16
+#define CAM_CLIP_Y 16
+
 
 #define LINE_THICKNESS 5
 
@@ -57,13 +55,13 @@ static uint8_t const label[11] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
 void CamCB(CamImage img)
 {
+    static uint32_t last_mills = 0;
 
     if (!img.isAvailable())
     {
         Serial.println("Image is not available. Try again");
         return;
     }
-
 
     DNNVariable output = detectPersonInImage(CamImage img);
     int index = output.maxIndex();
@@ -74,36 +72,26 @@ void CamCB(CamImage img)
         personDetected = true;
     }
 
-    // 結果出力
-    // String gStrResult = "?";
-    // if (index < 10)
-    // {
-    //     gStrResult = String(label[index]) + String(":") + String(output[index]);
-    // }
-    // else
-    // {
-    //     gStrResult = String("?:") + String(output[index]);
-    // }
-    // Serial.println(gStrResult);
-
     // 画像描画
     img.convertPixFormat(CAM_IMAGE_PIX_FMT_RGB565);
     uint16_t *imgBuf = (uint16_t *)img.getImgBuff();
     tft.drawRGBBitmap(0, 0, (uint16_t *)img.getImgBuff(), 320, 224);
+
+    // 処理時間の測定と表示
+    uint32_t current_mills = millis();
+    duration = (double)(current_mills - last_mills) / 1000;
+    Serial.println("duration = " + String(duration));
+    last_mills = current_mills;
+    if(display_mode == "main"){
+        time_from_start += duration;
+        Serial.println("time = " + String(time_from_start));
+    }
 }
 
 DNNVariable detectPersonInImage(CamImage img){
-    //撮影画像のサイズ縮小
-    CamImage small;
-    CamErr err = img.clipAndResizeImageByHW(small, CAM_CLIP_X, CAM_CLIP_Y, CAM_CLIP_X + CAM_CLIP_W - 1, CAM_CLIP_Y + CAM_CLIP_H - 1, DNN_IMG_W, DNN_IMG_H);
-    if (!small.isAvailable())
-    {
-        Serial.println("Clip and Reize Error:" + String(err), ILI9341_RED);
-        return;
-    }
     //YUVをRGBに変更
-    small.convertPixFormat(CAM_IMAGE_PIX_FMT_RGB565);
-    uint16_t *tmp = (uint16_t *)small.getImgBuff();
+    img.convertPixFormat(CAM_IMAGE_PIX_FMT_RGB565);
+    uint16_t *tmp = (uint16_t *)img.getImgBuff();
     //RGBのうちGを抽出
     float *dnnbuf = input.data();
     for (int n = 0; n < DNN_IMG_H * DNN_IMG_W; ++n)
