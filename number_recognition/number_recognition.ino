@@ -1,6 +1,6 @@
 /*
- *  number_recognition.ino - hand written number recognition sample application
- *  Copyright 2018 Sony Semiconductor Solutions Corporation
+ *  Spresense_gnss_simple.ino - Simplified gnss example application
+ *  Copyright 2019-2021 Sony Semiconductor Solutions Corporation
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -17,108 +17,139 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-/**
- * @file number_recognition.ino
- * @author Sony Semiconductor Solutions Corporation
- * @brief DNNRT sample application.
- *
- * This sample uses the network model file (.nnb) and recognize image
- * in pgm (portable greyscale map) file. Both of requred files should be
- * placed at the SD card. And adjust file path (nnbfile and pgmfile) if
- * needed.
- *
- * A sample NNB file `network.nnb` is provided in the same directory as this
- * sketch. See below for instructions on how to create this NNB file.
- * https://developer.sony.com/develop/spresense/docs/arduino_developer_guide_en.html#_dnnrt_library
- */
+#include <Camera.h>
+#include <SPI.h>
+#include <EEPROM.h>
+#include <DNNRT.h>
+#include "Adafruit_ILI9341.h"
 
 #include <SDHCI.h>
-#include <NetPBM.h>
-#include <DNNRT.h>
+SDClass theSD;
+
+/* LCD Settings */
+#define TFT_RST 8
+#define TFT_DC  9
+#define TFT_CS  10
+
+#define DNN_IMG_W 28
+#define DNN_IMG_H 28
+#define CAM_IMG_W 320
+#define CAM_IMG_H 240
+#define CAM_CLIP_X 104
+#define CAM_CLIP_Y 0
+#define CAM_CLIP_W 112
+#define CAM_CLIP_H 224
+
+#define LINE_THICKNESS 5
+
+Adafruit_ILI9341 tft = Adafruit_ILI9341(&SPI, TFT_DC, TFT_CS, TFT_RST);
+
+uint8_t buf[DNN_IMG_W*DNN_IMG_H];
 
 DNNRT dnnrt;
-SDClass SD;
+DNNVariable input(DNN_IMG_W*DNN_IMG_H);
+  
+static uint8_t const label[11] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
-void setup()
-{
-
-    Serial.begin(115200);
-    while (!Serial)
-    {
-        ; // wait for serial port to connect. Needed for native USB port only
-    }
-
-    File nnbfile = SD.open("network.nnb");
-    if (!nnbfile)
-    {
-        Serial.print("nnb not found");
-        return;
-    }
-    int ret = dnnrt.begin(nnbfile);
-    if (ret < 0)
-    {
-        Serial.println("Runtime initialization failure.");
-        if (ret == -16)
-        {
-            Serial.print("Please install bootloader!");
-            Serial.println(" or consider memory configuration!");
-        }
-        else
-        {
-            Serial.println(ret);
-        }
-        return;
-    }
-
-    // Image size for this network model is 28 x 28.
-
-    File pgmfile("number4.pgm");
-    NetPBM pgm(pgmfile);
-
-    unsigned short width, height;
-    pgm.size(&width, &height);
-
-    DNNVariable input(width * height);
-    float *buf = input.data();
-    int i = 0;
-
-    /*
-     * Normalize pixel data into between 0.0 and 1.0.
-     * PGM file is gray scale pixel map, so divide by 255.
-     * This normalization depends on the network model.
-     */
-
-    for (int x = 0; x < height; x++)
-    {
-        for (int y = 0; y < width; y++)
-        {
-            buf[i] = float(pgm.getpixel(x, y)) / 255.0;
-            i++;
-        }
-    }
-
-    dnnrt.inputVariable(input, 0);
-    dnnrt.forward();
-    DNNVariable output = dnnrt.outputVariable(0);
-
-    /*
-     * Get index for maximum value.
-     * In this example network model, this index represents a number,
-     * so you can determine recognized number from this index.
-     */
-
-    int index = output.maxIndex();
-    Serial.print("Image is ");
-    Serial.print(index);
-    Serial.println();
-    Serial.print("value ");
-    Serial.print(output[index]);
-    Serial.println();
-
-    dnnrt.end();
+void putStringOnLcd(String str, int color) {
+  int len = str.length();
+  tft.fillRect(0,224, 320, 240, ILI9341_BLACK);
+  tft.setTextSize(2);
+  int sx = 160 - len/2*12;
+  if (sx < 0) sx = 0;
+  tft.setCursor(sx, 225);
+  tft.setTextColor(color);
+  tft.println(str);
 }
 
-void loop()
-{
-    // put your main code here, to run repeatedly:
+void drawBox(uint16_t* imgBuf) {
+  /* Draw target line */
+  for (int x = CAM_CLIP_X; x < CAM_CLIP_X+CAM_CLIP_W; ++x) {
+    for (int n = 0; n < LINE_THICKNESS; ++n) {
+      *(imgBuf + CAM_IMG_W*(CAM_CLIP_Y+n) + x)              = ILI9341_RED;
+      *(imgBuf + CAM_IMG_W*(CAM_CLIP_Y+CAM_CLIP_H-1-n) + x) = ILI9341_RED;
+    }
+  }
+  for (int y = CAM_CLIP_Y; y < CAM_CLIP_Y+CAM_CLIP_H; ++y) {
+    for (int n = 0; n < LINE_THICKNESS; ++n) {
+      *(imgBuf + CAM_IMG_W*y + CAM_CLIP_X+n)                = ILI9341_RED;
+      *(imgBuf + CAM_IMG_W*y + CAM_CLIP_X + CAM_CLIP_W-1-n) = ILI9341_RED;
+    }
+  }  
 }
+
+void CamCB(CamImage img) {
+
+  if (!img.isAvailable()) {
+    Serial.println("Image is not available. Try again");
+    return;
+  }
+
+  CamImage small;
+  CamErr err = img.clipAndResizeImageByHW(small
+                     , CAM_CLIP_X, CAM_CLIP_Y
+                     , CAM_CLIP_X + CAM_CLIP_W -1
+                     , CAM_CLIP_Y + CAM_CLIP_H -1
+                     , DNN_IMG_W, DNN_IMG_H);
+  if (!small.isAvailable()){
+    putStringOnLcd("Clip and Reize Error:" + String(err), ILI9341_RED);
+    return;
+  }
+
+  small.convertPixFormat(CAM_IMAGE_PIX_FMT_RGB565);
+  uint16_t* tmp = (uint16_t*)small.getImgBuff();
+
+  float *dnnbuf = input.data();
+  float f_max = 0.0;
+  for (int n = 0; n < DNN_IMG_H*DNN_IMG_W; ++n) {
+    dnnbuf[n] = (float)((tmp[n] & 0x07E0) >> 5);
+    if (dnnbuf[n] > f_max) f_max = dnnbuf[n];
+  }
+  
+  /* normalization */
+  for (int n = 0; n < DNN_IMG_W*DNN_IMG_H; ++n) {
+    dnnbuf[n] /= f_max;
+  }
+  
+  String gStrResult = "?";
+  dnnrt.inputVariable(input, 0);
+  dnnrt.forward();
+  DNNVariable output = dnnrt.outputVariable(0);
+  int index = output.maxIndex();
+  
+  if (index < 10) {
+    gStrResult = String(label[index]) + String(":") + String(output[index]);
+  } else {
+    gStrResult = String("?:") + String(output[index]);
+  }
+  Serial.println(gStrResult);
+
+  img.convertPixFormat(CAM_IMAGE_PIX_FMT_RGB565);
+  uint16_t* imgBuf = (uint16_t*)img.getImgBuff(); 
+
+  drawBox(imgBuf); 
+  tft.drawRGBBitmap(0, 0, (uint16_t *)img.getImgBuff(), 320, 224);
+  putStringOnLcd(gStrResult, ILI9341_YELLOW);
+}
+
+
+void setup() {   
+  Serial.begin(115200);
+ 
+  tft.begin();
+  tft.setRotation(3);
+
+  while (!theSD.begin()) { putStringOnLcd("Insert SD card", ILI9341_RED); }
+  
+  File nnbfile = theSD.open("model.nnb");
+  int ret = dnnrt.begin(nnbfile);
+  if (ret < 0) {
+    putStringOnLcd("dnnrt.begin failed" + String(ret), ILI9341_RED);
+    return;
+  }
+
+  theCamera.begin();
+  theCamera.startStreaming(true, CamCB);
+}
+
+void loop() { }
