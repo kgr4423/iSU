@@ -64,6 +64,7 @@ void CamCB(CamImage img)
         return;
     }
 
+    //撮影画像のサイズ縮小
     CamImage small;
     CamErr err = img.clipAndResizeImageByHW(small, CAM_CLIP_X, CAM_CLIP_Y, CAM_CLIP_X + CAM_CLIP_W - 1, CAM_CLIP_Y + CAM_CLIP_H - 1, DNN_IMG_W, DNN_IMG_H);
     if (!small.isAvailable())
@@ -72,11 +73,12 @@ void CamCB(CamImage img)
         return;
     }
 
+    //YUVをRGBに変更
     small.convertPixFormat(CAM_IMAGE_PIX_FMT_RGB565);
     uint16_t *tmp = (uint16_t *)small.getImgBuff();
 
+    //RGBのうちGを抽出
     float *dnnbuf = input.data();
-    float f_max = 0.0;
     for (int n = 0; n < DNN_IMG_H * DNN_IMG_W; ++n)
     {
         dnnbuf[n] = (float)((tmp[n] & 0x07E0) >> 5);
