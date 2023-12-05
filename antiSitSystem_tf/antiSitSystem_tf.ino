@@ -57,10 +57,15 @@ void CamCB(CamImage img)
 
     if(display_mode == "main"){
         // キャプチャ画像データの取得
-        uint16_t *buf = getImageData(img);
+        CamImage small;
+        CamErr err = img.clipAndResizeImageByHW(small
+                            , 0  , 0
+                            , 191, 191
+                            , 96 , 96);
 
+        uint16_t* tmp = (uint16_t*)small.getImgBuff();
         // 人認識用に画像データを整形しTensorFlowの入力バッファにセット
-        setImageForPersonDetection(buf);
+        setImageForPersonDetection(tmp);
         // 人の有無判定
         bool personDetected = detectPersonInImage();
 
@@ -71,7 +76,7 @@ void CamCB(CamImage img)
         determineMode(safe_width, attention_width, danger_width);
 
         // キャプチャ画像の表示
-        display_main(buf, personDetected); 
+        display_main(img, personDetected); 
         // 警告処理
         alert();
     }else{

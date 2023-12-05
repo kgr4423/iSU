@@ -1,6 +1,6 @@
 void setup_camera()
 {
-    CamErr err = theCamera.begin(1, CAM_VIDEO_FPS_15, width, height, pixfmt);
+    CamErr err = theCamera.begin(1, CAM_VIDEO_FPS_15, width*2, height*2, pixfmt);
     if (err != CAM_ERR_SUCCESS)
     {
         Serial.println("camera begin err: " + String(err));
