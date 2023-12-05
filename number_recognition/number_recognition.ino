@@ -64,22 +64,6 @@ void putStringOnLcd(String str, int color)
     tft.println(str);
 }
 
-// void drawBox(uint16_t* imgBuf) {
-//   /* Draw target line */
-//   for (int x = CAM_CLIP_X; x < CAM_CLIP_X+CAM_CLIP_W; ++x) {
-//     for (int n = 0; n < LINE_THICKNESS; ++n) {
-//       *(imgBuf + CAM_IMG_W*(CAM_CLIP_Y+n) + x)              = ILI9341_RED;
-//       *(imgBuf + CAM_IMG_W*(CAM_CLIP_Y+CAM_CLIP_H-1-n) + x) = ILI9341_RED;
-//     }
-//   }
-//   for (int y = CAM_CLIP_Y; y < CAM_CLIP_Y+CAM_CLIP_H; ++y) {
-//     for (int n = 0; n < LINE_THICKNESS; ++n) {
-//       *(imgBuf + CAM_IMG_W*y + CAM_CLIP_X+n)                = ILI9341_RED;
-//       *(imgBuf + CAM_IMG_W*y + CAM_CLIP_X + CAM_CLIP_W-1-n) = ILI9341_RED;
-//     }
-//   }
-// }
-
 void CamCB(CamImage img)
 {
 
@@ -121,6 +105,7 @@ void CamCB(CamImage img)
     DNNVariable output = dnnrt.outputVariable(0);
     int index = output.maxIndex();
 
+    // 結果出力
     if (index < 10)
     {
         gStrResult = String(label[index]) + String(":") + String(output[index]);
@@ -131,10 +116,9 @@ void CamCB(CamImage img)
     }
     Serial.println(gStrResult);
 
+    // 画像描画
     img.convertPixFormat(CAM_IMAGE_PIX_FMT_RGB565);
     uint16_t *imgBuf = (uint16_t *)img.getImgBuff();
-
-    //   drawBox(imgBuf);
     tft.drawRGBBitmap(0, 0, (uint16_t *)img.getImgBuff(), 320, 224);
     putStringOnLcd(gStrResult, ILI9341_YELLOW);
 }
