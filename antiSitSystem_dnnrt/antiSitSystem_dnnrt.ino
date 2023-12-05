@@ -66,20 +66,25 @@ void CamCB(CamImage img)
 
 
     DNNVariable output = detectPersonInImage(CamImage img);
-
     int index = output.maxIndex();
+    bool personDetected;
+    if(index == 0){
+        personDetected = false;
+    }else{
+        personDetected = true;
+    }
 
     // 結果出力
-    String gStrResult = "?";
-    if (index < 10)
-    {
-        gStrResult = String(label[index]) + String(":") + String(output[index]);
-    }
-    else
-    {
-        gStrResult = String("?:") + String(output[index]);
-    }
-    Serial.println(gStrResult);
+    // String gStrResult = "?";
+    // if (index < 10)
+    // {
+    //     gStrResult = String(label[index]) + String(":") + String(output[index]);
+    // }
+    // else
+    // {
+    //     gStrResult = String("?:") + String(output[index]);
+    // }
+    // Serial.println(gStrResult);
 
     // 画像描画
     img.convertPixFormat(CAM_IMAGE_PIX_FMT_RGB565);
