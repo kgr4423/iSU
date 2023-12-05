@@ -80,13 +80,6 @@ void CamCB(CamImage img)
     for (int n = 0; n < DNN_IMG_H * DNN_IMG_W; ++n)
     {
         dnnbuf[n] = (float)((tmp[n] & 0x07E0) >> 5);
-        if (dnnbuf[n] > f_max)
-            f_max = dnnbuf[n];
-    }
-    /* normalization */
-    for (int n = 0; n < DNN_IMG_W * DNN_IMG_H; ++n)
-    {
-        dnnbuf[n] /= f_max;
     }
 
     // 推論処理
