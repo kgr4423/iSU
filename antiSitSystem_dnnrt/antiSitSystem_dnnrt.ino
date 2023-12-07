@@ -1,30 +1,30 @@
-// 推論処理関連
-#include "tensorflow/lite/micro/all_ops_resolver.h"
-#include "tensorflow/lite/micro/micro_error_reporter.h"
-#include "tensorflow/lite/micro/micro_interpreter.h"
-#include "tensorflow/lite/micro/system_setup.h"
-#include "tensorflow/lite/schema/schema_generated.h"
-
-#include "person_detect_model.h" //使用する推論モデル
-
-tflite::ErrorReporter *error_reporter = nullptr;
-const tflite::Model *model = nullptr;
-tflite::MicroInterpreter *interpreter = nullptr;
-TfLiteTensor *input = nullptr;
-TfLiteTensor *output = nullptr;
-int inference_count = 0;
-
-constexpr int kTensorArenaSize = 100000;
-uint8_t tensor_arena[kTensorArenaSize];
+// DNNRT
+#include <SPI.h>
+#include <EEPROM.h>
+#include <NetPBM.h>
+#include <DNNRT.h>
+#include <SDHCI.h>
+SDClass theSD;
+// 推論画像サイズ
+#define DNN_IMG_W 96
+#define DNN_IMG_H 96
+DNNRT dnnrt;
+DNNVariable input(DNN_IMG_W *DNN_IMG_H);
 
 // カメラの撮影・撮影画像の表示関連
+#include "Adafruit_GFX.h"
+#include "Adafruit_ILI9341.h"
+#include <cstdint>
 #include <Camera.h>
+#define TFT_RST 8
+#define TFT_DC 9
+#define TFT_CS 10
+Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
+uint16_t disp[160 * 40];
 const int offset_x = 16;
 const int offset_y = 24;
 const int width = 96;
 const int height = 96;
-// const int target_w = 110;
-// const int target_h = 110;
 const int pixfmt = CAM_IMAGE_PIX_FMT_YUV422;
 
 // 出力ピン
@@ -57,19 +57,9 @@ void CamCB(CamImage img)
     static uint32_t last_mills = 0;
 
     if(display_mode == "main"){
-        // キャプチャ画像データの取得
-        CamImage small;
-        CamErr err = img.clipAndResizeImageByHW(small
-                            , 0  , 0
-                            , 191, 191
-                            , 96 , 96);
-
-        uint16_t* tmp = (uint16_t*)small.getImgBuff();
-        // 人認識用に画像データを整形しTensorFlowの入力バッファにセット
-        setImageForPersonDetection(tmp);
+        
         // 人の有無判定
-        bool personDetected = detectPersonInImage();
-
+        bool personDetected = detectPersonInImage(img);
         // カウンタの更新
         double d = sitcountUpdater(personDetected);
         sitCount += d;
@@ -102,14 +92,25 @@ void CamCB(CamImage img)
 void setup()
 {
     Serial.begin(115200);
+    while (!theSD.begin())
+    {
+        Serial.println("insert sd card");
+    }
+
+    File nnbfile = theSD.open("model.nnb");
+    int ret = dnnrt.begin(nnbfile);
+    if (ret < 0)
+    {
+        Serial.println("dnnrt.begin failed");
+        return;
+    }
+
     pinMode(button_pin_4, INPUT_PULLUP);
     pinMode(button_pin_5, INPUT_PULLUP);
     pinMode(button_pin_6, INPUT_PULLUP);
     pinMode(button_pin_7, INPUT_PULLUP);
     pinMode(beep_pin, OUTPUT);
-
     setup_display();
-    setup_tensorflow();
     setup_camera();
 }
 
@@ -147,6 +148,37 @@ void loop()
 
         resetRect(0, 0, 320, 240, 0xFFFF);
     }
-    
-    
+}
+
+// 推論処理
+bool detectPersonInImage(CamImage img){
+    // キャプチャ画像データの取得
+    CamImage small;
+    CamErr err = img.clipAndResizeImageByHW(small
+                        , 0  , 0
+                        , 191, 191
+                        , 96 , 96);
+    //YUVをRGBに変更
+    small.convertPixFormat(CAM_IMAGE_PIX_FMT_RGB565);
+    uint16_t *tmp = (uint16_t *)small.getImgBuff();
+    //RGBのうちGを抽出
+    float *dnnbuf = input.data();
+    for (int n = 0; n < DNN_IMG_H * DNN_IMG_W; ++n)
+    {
+        dnnbuf[n] = (float)((tmp[n] & 0x07E0) >> 5);
+    }
+    // 推論処理
+    dnnrt.inputVariable(input, 0);
+    dnnrt.forward();
+    DNNVariable output = dnnrt.outputVariable(0);
+    int index = output.maxIndex();
+
+    bool personDetected;
+    if(index == 0){
+        personDetected = false;
+    }else{
+        personDetected = true;
+    }
+
+    return personDetected;
 }

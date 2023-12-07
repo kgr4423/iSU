@@ -1,15 +1,4 @@
 // LCDモニタ関連の関数
-
-#include "Adafruit_GFX.h"
-#include "Adafruit_ILI9341.h"
-#include <cstdint>
-
-#define TFT_RST 8
-#define TFT_DC 9
-#define TFT_CS 10
-Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
-uint16_t disp[160 * 40];
-
 void setup_display()
 {
     tft.begin();
@@ -64,45 +53,15 @@ void display_main(CamImage disp_img, bool isPerson)
     tft.setTextColor(ILI9341_BLACK);
     setText("SETT ", 267, 198, 2);
     setText("-ING ", 267, 213, 2);
-
+    //画像表示
     disp_img.convertPixFormat(CAM_IMAGE_PIX_FMT_RGB565);
     tft.drawRGBBitmap(offset_x, offset_y, (uint16_t *)disp_img.getImgBuff(), width*2, height*2);
+    //認識アイコン表示
     if(isPerson){
-        tft.fillRect(32, 48, 10, 10, ILI9341_RED);
+        tft.fillRect(267, 5, 42, 30, ILI9341_RED);
+    }else{
+        tft.fillRect(267, 5, 42, 30, ILI9341_WHITE);
     }
-
-    //画像表示
-    // for (int y = 0; y < height; ++y)
-    // {
-    //     for (int x = 0; x < width; ++x)
-    //     {
-    //         // YUV422形式の画像データから輝度成分を抽出しRGB565へ変換
-    //         uint16_t value = buf[y*width + x];
-    //         uint16_t y_h = (value & 0xf000) >> 8;
-    //         uint16_t y_l = (value & 0x00f0) >> 4;
-    //         value = (y_h | y_l);
-    //         uint16_t value6 = (value >> 2);
-    //         uint16_t value5 = (value >> 3);
-    //         value = (value5 << 11) | (value6 << 5) | value5;
-    //         //ピクセル
-    //         //左右反転のため「width*2 - 」としている
-    //         int LU = width*2 - x*2;
-    //         int RU = width*2 - x*2 + 1;
-    //         int LD = width*2 - x*2     + width*2;
-    //         int RD = width*2 - x*2 + 1 + width*2;
-    //         // 撮影画像表示部分
-    //         disp[LU] = value; disp[RU] = value;
-    //         disp[LD] = value; disp[RD] = value;
-    //         if (result && (10 <= y) && (y <= 20) && (10 <= x) && (x <= 20))
-    //         {
-    //             // 判定アイコン表示部分
-    //             disp[LU] = ILI9341_RED; disp[RU] = ILI9341_RED;
-    //             disp[LD] = ILI9341_RED; disp[RD] = ILI9341_RED;
-    //         }
-    //     }
-    //     // 画像の表示
-    //     tft.drawRGBBitmap(offset_x, offset_y + y*2, disp, width*2, 2);
-    // }
 }
 
 void display_setting(){

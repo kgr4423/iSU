@@ -1,7 +1,7 @@
 {
-    "configuration": "Core=Main,Memory=1152,Debug=Disabled,UploadSpeed=460800",
-    "board": "SPRESENSE_tensorflow:spresense:spresense",
-    "sketch": "antiSitSystem_tf\\antiSitSystem_tf.ino",
+    "configuration": "Core=Main,Memory=768,Debug=Disabled,UploadSpeed=115200",
+    "board": "SPRESENSE:spresense:spresense",
+    "sketch": "antiSitSystem_dnnrt\\antiSitSystem_dnnrt.ino",
     "port": "COM4",
     "programmer": "sfutools"
 }
