@@ -46,7 +46,8 @@ int safe_time_min = 1;
 double safe_time_sec = safe_time_min * 60.0;
 double time_from_start = 0;
 char* display_mode = "main"; 
-double duration;
+char* test_mode = "normal";
+double duration = 0;
 
 
 // カメラストリームのコールバック関数
@@ -59,7 +60,14 @@ void CamCB(CamImage img)
     if(display_mode == "main"){
         
         // 人の有無判定
-        bool personDetected = detectPersonInImage(img);
+        bool personDetected;
+        if(test_mode == "normal"){
+            personDetected = detectPersonInImage(img);
+        }else if(test_mode == "isPerson"){
+            personDetected = true;
+        }else{
+            personDetected = false;
+        }
         // カウンタの更新
         double d = sitcountUpdater(personDetected);
         sitCount += d;
@@ -121,6 +129,18 @@ void loop()
     int button_pin_6_state = digitalRead(button_pin_6);
     int button_pin_7_state = digitalRead(button_pin_7);
 
+    if (button_pin_4_state == LOW && display_mode == "main"){
+        test_mode = "normal";
+        output_beep(beep_pin, 440, 50);
+    }
+    if (button_pin_5_state == LOW && display_mode == "main"){
+        test_mode = "isPerson";
+        output_beep(beep_pin, 440, 50);
+    }
+    if (button_pin_6_state == LOW && display_mode == "main"){
+        test_mode = "noPerson";
+        output_beep(beep_pin, 440, 50);
+    }
     if (button_pin_5_state == LOW && display_mode == "setting"){
         safe_time_min += 1;
         safe_time_sec = safe_time_min * 60.0;
@@ -135,7 +155,6 @@ void loop()
     }
     if (button_pin_7_state == LOW)
     {
-        //スイッチ押したときの処理
         if(display_mode == "main"){
             display_mode = "setting";
         }else{
